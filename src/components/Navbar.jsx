@@ -34,7 +34,7 @@ const Navbar = ({ onNavigate }) => {
           <a href="#pricing" className="nav-link">Pricing</a>
           <a href="#docs" className="nav-link">Docs</a>
           <a href="#blog" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('blog'); }}>Blog</a>
-          <a href="#contact" className="nav-link">Contact</a>
+          <a href="#contact" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('contact'); }}>Contact</a>
         </div>
       </div>
     </nav>
