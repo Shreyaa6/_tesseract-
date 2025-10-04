@@ -98,7 +98,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="hero-text">_tesseract/</div>
-          <div className="hero-tagline">Graphite helps teams on GitHub ship higher quality software, faster</div>
+          <div className="hero-tagline">_tesseract/ helps teams on GitHub ship higher quality software, faster</div>
         </div>
         
         {/* Scroll indicator */}
@@ -116,7 +116,7 @@ const Landing = () => {
           <div className="section-header">
             <h2 className="section-title">Developer infrastructure built for your team</h2>
             <p className="section-subtitle">
-              Graphite works seamlessly with the technologies you already use
+              _tesseract/ works seamlessly with the technologies you already use
             </p>
           </div>
           
@@ -181,7 +181,7 @@ const Landing = () => {
               <div className="text-block">
                 <h3 className="block-title">Where change happens</h3>
                 <p className="block-description">
-                  Organizations that adopt Graphite ship more code with smaller PRs and faster review cycles.
+                  Organizations that adopt _tesseract/ ship more code with smaller PRs and faster review cycles.
                 </p>
               </div>
               
@@ -195,7 +195,7 @@ const Landing = () => {
               <div className="text-block">
                 <h3 className="block-title">Built on top of Git</h3>
                 <p className="block-description">
-                  Graphite is integrated with all your git scripts, aliases, and workflows.
+                  _tesseract/ is integrated with all your git scripts, aliases, and workflows.
                 </p>
               </div>
             </div>
@@ -211,7 +211,7 @@ const Landing = () => {
             <div className="card-item">
               <h3 className="card-title">Ask, update, commit. All in one place.</h3>
               <p className="card-description">
-                Now you can chat with Graphite to get context on code changes, fix issues, resolve CI failures, and update your PRs, right in your review flow.
+                Now you can chat with _tesseract/ to get context on code changes, fix issues, resolve CI failures, and update your PRs, right in your review flow.
               </p>
               <button className="learn-more-btn">Learn More</button>
             </div>
@@ -219,7 +219,7 @@ const Landing = () => {
             <div className="card-item">
               <h3 className="card-title">Save hours on every pull request</h3>
               <p className="card-description">
-                Get immediate, actionable feedback on every pull request with Graphite's codebase-aware AI.
+                Get immediate, actionable feedback on every pull request with _tesseract/'s codebase-aware AI.
               </p>
               <button className="learn-more-btn">Learn More</button>
             </div>
@@ -227,7 +227,7 @@ const Landing = () => {
             <div className="card-item">
               <h3 className="card-title">Turn comments into suggested changes</h3>
               <p className="card-description">
-                Graphite generates suggested code changes for comments, helping you to resolve threads faster.
+                _tesseract/ generates suggested code changes for comments, helping you to resolve threads faster.
               </p>
               <button className="learn-more-btn">Learn More</button>
             </div>
@@ -243,7 +243,7 @@ const Landing = () => {
             <div className="card-item">
               <h3 className="card-title">From failures to fixes</h3>
               <p className="card-description">
-                Graphite summarizes and generates fixes for your failing CI.
+                _tesseract/ summarizes and generates fixes for your failing CI.
               </p>
               <button className="learn-more-btn">Learn More</button>
             </div>

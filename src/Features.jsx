@@ -14,7 +14,7 @@ const Features = () => {
         <h1 className="features-main-title">The new standard for developer infrastructure</h1>
 
         <div className="feature-cards-grid">
-          {/* Card 1: Graphite CLI */}
+          {/* Card 1: _tesseract/ CLI */}
           <div className="feature-card">
             <div className="card-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,7 +27,7 @@ const Features = () => {
                 <line x1="10" y1="9" x2="10" y2="9"></line>
               </svg>
             </div>
-            <h2 className="card-title">Graphite CLI</h2>
+            <h2 className="card-title">_tesseract/ CLI</h2>
             <p className="card-description">Streamline Git commands and seamlessly stack pull requests from your terminal.</p>
             <button className="see-more-btn">See more</button>
           </div>
@@ -60,7 +60,7 @@ const Features = () => {
               </svg>
             </div>
             <h2 className="card-title">Diamond</h2>
-            <p className="card-description">Get immediate, actionable feedback on every pull request with Graphite's codebase-aware AI.</p>
+            <p className="card-description">Get immediate, actionable feedback on every pull request with _tesseract/'s codebase-aware AI.</p>
             <button className="see-more-btn">See more</button>
           </div>
 
@@ -138,10 +138,10 @@ const Features = () => {
         </div>
       </div>
 
-      {/* Graphite CLI Section */}
+      {/* _tesseract/ CLI Section */}
       <div className="cli-section">
         <div className="cli-content">
-          <h2 className="cli-title">The Graphite CLI</h2>
+          <h2 className="cli-title">The _tesseract/ CLI</h2>
           <p className="cli-subtitle">A faster, more intuitive Git interface, designed to make stacking effortless.</p>
           
           {/* Terminal UI */}
@@ -218,7 +218,7 @@ const Features = () => {
             
             <div className="workflow-card">
               <h3 className="workflow-title">Respond to feedback</h3>
-              <p className="workflow-description">Update changes across your stack with <code>gt modify</code>. Graphite handles all of the recursive rebasing for you.</p>
+              <p className="workflow-description">Update changes across your stack with <code>gt modify</code>. _tesseract/ handles all of the recursive rebasing for you.</p>
             </div>
             
             <div className="workflow-card">
