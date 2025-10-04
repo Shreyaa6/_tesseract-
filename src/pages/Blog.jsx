@@ -1,58 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import './blog.css';
 
-const Blog = ({ onNavigate }) => {
-  const [crossMousePosition, setCrossMousePosition] = useState({ x: 0, y: 0 });
+const Blog = () => {
   const [activeCategory, setActiveCategory] = useState('All posts');
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const crossBackgroundRef = useRef(null);
 
-  const handleCrossMouseMove = (e) => {
-    if (crossBackgroundRef.current) {
-      const rect = crossBackgroundRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setCrossMousePosition({ x, y });
-    }
-  };
-
-  // Calculate edge fade based on cursor position
-  const getEdgeFadeMask = () => {
-    if (!crossBackgroundRef.current) return '';
-
-    const rect = crossBackgroundRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const cursorX = crossMousePosition.x;
-
-    // Define edge zones (10% from each edge)
-    const edgeZone = width * 0.1;
-    const centerZone = width * 0.8;
-
-    // If cursor is in left edge zone, fade from cursor position
-    if (cursorX < edgeZone) {
-      const fadeStart = Math.max(0, cursorX - 50);
-      const fadeEnd = Math.min(width, cursorX + 50);
-      return `linear-gradient(to right, transparent 0%, black ${fadeStart}px, black ${fadeEnd}px, transparent 100%)`;
-    }
-
-    // If cursor is in right edge zone, fade from cursor position
-    if (cursorX > width - edgeZone) {
-      const fadeStart = Math.max(0, cursorX - 50);
-      const fadeEnd = Math.min(width, cursorX + 50);
-      return `linear-gradient(to right, transparent 0%, black ${fadeStart}px, black ${fadeEnd}px, transparent 100%)`;
-    }
-
-    // If cursor is in center, use normal edge fade
-    return `linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)`;
-  };
   const blogPosts = [
     {
       id: 1,
       category: 'ENGINEERING',
       date: 'September 18, 2025',
       title: 'Introducing frozen branches: A safer way to build on your teammates\' work',
+      description: 'Learn how frozen branches help teams collaborate more effectively while maintaining code quality and reducing merge conflicts.',
       author: 'David Bradford',
       authorAvatar: '👨‍💻',
       featured: true
@@ -62,6 +21,7 @@ const Blog = ({ onNavigate }) => {
       category: 'CHANGELOG',
       date: 'September 17, 2025',
       title: 'Graphite changelog [09-17-2025]',
+      description: 'Latest updates and improvements to the Graphite platform, including new features and bug fixes.',
       author: 'Sara Verdi',
       authorAvatar: '👩‍💻',
       featured: false
@@ -71,6 +31,7 @@ const Blog = ({ onNavigate }) => {
       category: 'ENGINEERING',
       date: 'September 10, 2025',
       title: 'How we sped up code search for Graphite Chat',
+      description: 'Deep dive into the technical improvements that made our code search feature lightning fast.',
       author: 'Brandon Willett',
       authorAvatar: '👨‍💻',
       featured: false
@@ -80,6 +41,7 @@ const Blog = ({ onNavigate }) => {
       category: 'LAUNCHES',
       date: 'August 19, 2025',
       title: 'Introducing Graphite Chat',
+      description: 'Meet our new AI-powered chat feature that helps developers get instant answers about their codebase.',
       author: 'Merrill Lutsky',
       authorAvatar: '👩‍💻',
       featured: false
@@ -89,6 +51,7 @@ const Blog = ({ onNavigate }) => {
       category: 'LEARNING',
       date: 'July 29, 2025',
       title: 'AI is writing code—here\'s why it also needs to review that code',
+      description: 'Exploring the importance of AI code review in maintaining software quality and security.',
       author: 'Sara Verdi',
       authorAvatar: '👩‍💻',
       featured: false
@@ -98,235 +61,211 @@ const Blog = ({ onNavigate }) => {
       category: 'ENGINEERING',
       date: 'July 25, 2025',
       title: 'How I got Claude to write code I could actually ship',
+      description: 'Practical tips and techniques for getting AI assistants to produce production-ready code.',
       author: 'Kush Gupta',
       authorAvatar: '👨‍💻',
-      featured: false,
-      categories: ['ENGINEERING', 'LAUNCHES', 'STACKING']
+      featured: false
     }
   ];
 
-  const designPosts = [
+  const recentPosts = [
     {
       id: 7,
-      category: 'Design Insights',
-      title: 'Trends in Modern Design',
-      description: 'Discover the latest trends shaping modern design studios and how they can elevate.',
-      image: '💻',
-      featured: false
+      category: 'Design',
+      title: 'Trends in Modern Development Tools',
+      description: 'Discover the latest trends shaping modern development workflows and how they can improve your productivity.',
+      date: 'September 15, 2025',
+      author: 'Alex Chen',
+      authorAvatar: '👨‍💻'
     },
     {
       id: 8,
-      category: 'Design Tips',
-      title: 'Power of Minimalist Design',
-      description: 'Learn how minimalist design can create impactful and projects for your clients.',
-      image: '💻',
-      featured: false
+      category: 'Tutorial',
+      title: 'Building Scalable Microservices',
+      description: 'Learn how to design and implement microservices that can scale with your growing application needs.',
+      date: 'September 12, 2025',
+      author: 'Maria Rodriguez',
+      authorAvatar: '👩‍💻'
     },
     {
       id: 9,
-      category: 'Design Tips',
-      title: 'Sustainable Design for Studios',
-      description: 'Explore how design studios can adopt sustainable practices to create projects.',
-      image: '💻',
-      featured: false
+      category: 'Case Study',
+      title: 'How We Reduced Build Times by 80%',
+      description: 'A detailed case study on optimizing CI/CD pipelines and the impact on developer productivity.',
+      date: 'September 8, 2025',
+      author: 'James Wilson',
+      authorAvatar: '👨‍💻'
     }
   ];
 
   const categories = [
     'All posts',
-    '#events',
+    '#engineering',
     '#launches',
-    '#state of code',
-    '#launch week',
     '#learning',
     '#changelog',
     '#company',
-    '#engineering',
     '#stacking'
   ];
 
   const featuredPost = blogPosts.find(post => post.featured);
   const otherPosts = blogPosts.filter(post => !post.featured);
 
-  // Filter posts based on active category
-  const filteredPosts = activeCategory === 'All posts' 
-    ? otherPosts 
-    : otherPosts.filter(post => {
-        const categoryTag = `#${post.category.toLowerCase()}`;
-        return categoryTag === activeCategory || 
-               (post.categories && post.categories.some(cat => `#${cat.toLowerCase()}` === activeCategory));
-      });
-
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
   };
 
-  const handleCardHover = (postId) => {
-    setHoveredCard(postId);
-  };
-
-  const handleCardLeave = () => {
-    setHoveredCard(null);
-  };
-
   return (
     <div className="blog-page">
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
+      
+      {/* Background Image */}
+      <div className="background-container"></div>
 
-      {/* Blog Header */}
-      {/* <header className="blog-header">
-        <div className="blog-header-container">
-          <div className="blog-logo">
-            <div className="blog-logo-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path 
-                  d="M12 2L22 7L12 12L2 7L12 2Z" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M2 17L12 22L22 17" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M2 12L12 17L22 12" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
+      {/* Content */}
+      <div className="blog-content">
+        <h1 className="blog-main-title">Developer insights and updates</h1>
+
+        <div className="blog-cards-grid">
+          {/* Card 1: Latest Updates */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10,9 9,9 8,9"></polyline>
               </svg>
             </div>
-            <span>Graphite</span>
+            <h2 className="card-title">Latest Updates</h2>
+            <p className="card-description">Stay informed with the newest features, improvements, and announcements from our development team.</p>
+            <button className="read-more-btn">Read more</button>
           </div>
-          
-          <nav className="blog-nav">
-            <a href="#features" className="blog-nav-link">Features</a>
-            <a href="#diamond" className="blog-nav-link">Diamond</a>
-            <a href="#use-cases" className="blog-nav-link">Use cases</a>
-            <a href="#pricing" className="blog-nav-link">Pricing</a>
-            <a href="#docs" className="blog-nav-link">Docs</a>
-            <a href="#blog" className="blog-nav-link active">Blog</a>
-            <a href="#contact" className="blog-nav-link">Contact</a>
-          </nav>
-          
-          <div className="blog-actions">
-            <button className="blog-login-btn">
-              <span className="login-icon">G</span>
-              Log in
-            </button>
-            <button className="blog-signup-btn">Sign up</button>
+
+          {/* Card 2: Engineering Insights */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+            </div>
+            <h2 className="card-title">Engineering Insights</h2>
+            <p className="card-description">Deep technical articles about our engineering challenges, solutions, and the technologies we use.</p>
+            <button className="read-more-btn">Read more</button>
+          </div>
+
+          {/* Card 3: Developer Stories */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h2 className="card-title">Developer Stories</h2>
+            <p className="card-description">Personal experiences, lessons learned, and stories from developers in our community.</p>
+            <button className="read-more-btn">Read more</button>
+          </div>
+
+          {/* Card 4: Tutorials */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
+            </div>
+            <h2 className="card-title">Tutorials</h2>
+            <p className="card-description">Step-by-step guides to help you master new tools, techniques, and best practices.</p>
+            <button className="read-more-btn">Read more</button>
+          </div>
+
+          {/* Card 5: Case Studies */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+              </svg>
+            </div>
+            <h2 className="card-title">Case Studies</h2>
+            <p className="card-description">Real-world examples of how teams solved complex problems and improved their development workflows.</p>
+            <button className="read-more-btn">Read more</button>
+          </div>
+
+          {/* Card 6: Community */}
+          <div className="blog-card">
+            <div className="card-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h2 className="card-title">Community</h2>
+            <p className="card-description">Connect with fellow developers, share experiences, and learn from the community.</p>
+            <button className="read-more-btn">Read more</button>
           </div>
         </div>
-      </header> */}
+      </div>
 
-      {/* Main Content */}
-      <main className="blog-main">
-        <div className="blog-container">
-          {/* Featured Post */}
-          <div className="cross-background-wrapper"
-            ref={crossBackgroundRef}
-            onMouseMove={handleCrossMouseMove}
-            style={{
-              '--cross-mouse-x': `${crossMousePosition.x}px`,
-              '--cross-mouse-y': `${crossMousePosition.y}px`
-            }}>
-            <div className="cross-background-sub-wrapper">
-              <div className="cross-background-background"></div>
-              <div className="cross-background-mask"
-                style={{
-                  maskImage: `radial-gradient(circle 200px at var(--cross-mouse-x, 50%) var(--cross-mouse-y, 50%), white 45%, transparent), ${getEdgeFadeMask()}`
-                }}></div>
-            </div>
-            <section className="featured-post">
-              <div className="featured-post-content">
-                <div className="post-category">#{featuredPost.category.toLowerCase()}</div>
-                <h1 className="featured-post-title">{featuredPost.title}</h1>
-                <div className="post-meta">
-                  <span className="post-date">{featuredPost.date}</span>
-                  <div className="post-author">
-                    <span className="author-avatar">{featuredPost.authorAvatar}</span>
-                    <span className="author-name">{featuredPost.author}</span>
-                  </div>
+      {/* Featured Post Section */}
+      <div className="featured-section">
+        <div className="featured-content">
+          <h2 className="featured-title">Featured Post</h2>
+          <p className="featured-subtitle">
+            Our latest insights and updates from the development team
+          </p>
+          
+          {featuredPost && (
+            <div className="featured-post-card">
+              <div className="featured-post-header">
+                <div className="featured-post-meta">
+                  <span className="featured-post-category">{featuredPost.category}</span>
+                  <span className="featured-post-date">{featuredPost.date}</span>
+                </div>
+                <div className="featured-post-author">
+                  <span>{featuredPost.authorAvatar}</span>
+                  <span>{featuredPost.author}</span>
                 </div>
               </div>
-            </section>
-          </div>
-
-          {/* Category Filters */}
-          <section className="category-filters">
-            <div className="filter-buttons">
-              {categories.map((category, index) => (
-                <button
-                  key={index}
-                  className={`filter-btn ${activeCategory === category ? 'active' : ''}`}
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  {category}
-                </button>
-              ))}
+              <div className="featured-post-body">
+                <h3 className="featured-post-title">{featuredPost.title}</h3>
+                <p className="featured-post-excerpt">{featuredPost.description}</p>
+                <button className="featured-read-more">Read Full Article</button>
+              </div>
             </div>
-          </section>
-
-          {/* Blog Posts Grid */}
-          <section className="blog-posts-grid">
-            {filteredPosts.map((post) => (
-              <article 
-                key={post.id} 
-                className={`blog-post-card ${hoveredCard === post.id ? 'hovered' : ''}`}
-                onMouseEnter={() => handleCardHover(post.id)}
-                onMouseLeave={handleCardLeave}
-              >
-                <div className="post-card-header">
-                  <span className="post-card-category">{post.category}</span>
-                  <span className="post-card-date">{post.date}</span>
-                </div>
-                <h2 className="post-card-title">{post.title}</h2>
-                <div className="post-card-author">
-                  <span className="post-card-avatar">{post.authorAvatar}</span>
-                  <span className="post-card-author-name">{post.author}</span>
-                </div>
-              </article>
-            ))}
-          </section>
-
-          {/* Design Talk From the Team Section */}
-          <section className="design-section">
-            <div className="design-header">
-              <h2 className="design-title">
-                Design <span className="design-accent">Talk</span> From the Team
-              </h2>
-              <p className="design-subtitle">
-                Discover design tips, and expert insights to help your brand stand out.
-              </p>
-            </div>
-            
-            <div className="design-posts-grid">
-              {designPosts.map((post) => (
-                <article 
-                  key={post.id} 
-                  className={`design-post-card ${hoveredCard === post.id ? 'hovered' : ''}`}
-                  onMouseEnter={() => handleCardHover(post.id)}
-                  onMouseLeave={handleCardLeave}
-                >
-                  <div className="design-card-category">{post.category}</div>
-                  <div className="design-card-image">{post.image}</div>
-                  <h3 className="design-card-title">{post.title}</h3>
-                  <p className="design-card-description">{post.description}</p>
-                  <button className="design-read-more-btn">
-                    Read More
-                    <span className="arrow-icon">→</span>
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
+          )}
         </div>
-      </main>
+      </div>
 
-      <Footer />
+      {/* Recent Posts Section */}
+      <div className="recent-posts-section">
+        <div className="recent-posts-content">
+          <h2 className="recent-posts-title">Recent Posts</h2>
+          <p className="recent-posts-subtitle">
+            Stay up to date with our latest articles and insights
+          </p>
+          
+          <div className="recent-posts-grid">
+            {recentPosts.map((post) => (
+              <div key={post.id} className="recent-post-card">
+                <div className="recent-post-meta">
+                  <span className="recent-post-category">{post.category}</span>
+                  <span className="recent-post-date">{post.date}</span>
+                </div>
+                <h3 className="recent-post-title">{post.title}</h3>
+                <p className="recent-post-description">{post.description}</p>
+                <div className="recent-post-author">
+                  <span className="recent-post-avatar">{post.authorAvatar}</span>
+                  <span className="recent-post-author-name">{post.author}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

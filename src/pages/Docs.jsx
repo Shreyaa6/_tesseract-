@@ -2,10 +2,10 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import './docs.css';
 
-const Docs = ({ onNavigate }) => {
+const Docs = () => {
   return (
     <div className="docs-page">
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="docs-hero">

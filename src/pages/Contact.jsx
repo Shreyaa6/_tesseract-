@@ -2,10 +2,10 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import './contact.css';
 
-const Contact = ({ onNavigate }) => {
+const Contact = () => {
   return (
     <div className="contact-page">
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="contact-hero">

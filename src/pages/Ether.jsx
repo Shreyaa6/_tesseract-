@@ -2,10 +2,10 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import './ether.css';
 
-const Ether = ({ onNavigate }) => {
+const Ether = () => {
   return (
     <div className="ether-page">
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="ether-hero">

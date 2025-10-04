@@ -29,9 +29,9 @@ const Navbar = () => {
         <div className="navbar-links">
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/features" className="nav-link">Features</Link>
-          <Link to="/ether" className="nav-link">Ether</Link>
-          <Link to="/use-cases" className="nav-link">Use cases</Link>
-          <Link to="/docs" className="nav-link">Docs</Link>
+          {/* <Link to="/ether" className="nav-link">Ether</Link>
+          <Link to="/use-cases" className="nav-link">Use cases</Link> */}
+          {/* <Link to="/docs" className="nav-link">Docs</Link> */}
           <Link to="/blog" className="nav-link">Blog</Link>
           <Link to="/contact" className="nav-link">Contact</Link>
         </div>

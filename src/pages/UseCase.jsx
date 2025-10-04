@@ -2,10 +2,10 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import './usecase.css';
 
-const UseCase = ({ onNavigate }) => {
+const UseCase = () => {
   return (
     <div className="usecase-page">
-      <Navbar onNavigate={onNavigate} />
+      <Navbar />
       
 
       {/* Industries Section */}
