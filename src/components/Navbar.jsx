@@ -1,21 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './navbar.css';
 
 
-const Navbar = ({ onNavigate }) => {
-  const handleNavClick = (page) => {
-    if (onNavigate) {
-      onNavigate(page);
-    }
-  };
+const Navbar = () => {
+  const navigate = useNavigate();
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
         {/* Logo Section */}
 
-        <div className="navbar-logo" onClick={() => handleNavClick('landing')}>
+        <Link to="/" className="navbar-logo">
 
           <div className="logo-cube">
             <div className="cube">
@@ -31,13 +27,24 @@ const Navbar = ({ onNavigate }) => {
 
         {/* Navigation Links */}
         <div className="navbar-links">
-          <a href="#home" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('landing'); }}>Home</a>
-          <a href="#features" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('features'); }}>Features</a>
-          <a href="#ether" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('ether'); }}>Ether</a>
-          <a href="#use-cases" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('usecase'); }}>Use cases</a>
-          <a href="#docs" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('docs'); }}>Docs</a>
-          <a href="#blog" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('blog'); }}>Blog</a>
-          <a href="#contact" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('contact'); }}>Contact</a>
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/features" className="nav-link">Features</Link>
+          <Link to="/ether" className="nav-link">Ether</Link>
+          <Link to="/use-cases" className="nav-link">Use cases</Link>
+          <Link to="/docs" className="nav-link">Docs</Link>
+          <Link to="/blog" className="nav-link">Blog</Link>
+          <Link to="/contact" className="nav-link">Contact</Link>
+        </div>
+
+        {/* Auth Button */}
+        <div className="navbar-auth">
+          <Link to="/login" className="get-started-btn">
+            <span>Get Started</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </Link>
         </div>
       </div>
     </nav>
