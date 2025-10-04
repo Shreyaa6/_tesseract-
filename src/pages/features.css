@@ -1,5 +1,5 @@
-/* Contact Page Styles */
-.contact-page {
+/* Features Page Styles */
+.features-page {
   min-height: 100vh;
   width: 100%;
   height: 100%;
@@ -10,7 +10,7 @@
 }
 
 /* Geometric Background Pattern */
-.contact-page::before {
+.features-page::before {
   content: '';
   position: fixed;
   top: 0;
@@ -40,19 +40,19 @@
 }
 
 /* Hero Section */
-.contact-hero {
+.features-hero {
   padding: 8rem 0 4rem 0;
   background: transparent;
   text-align: center;
 }
 
-.contact-hero-container {
+.features-hero-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
-.contact-hero-title {
+.features-hero-title {
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -66,19 +66,19 @@
   background-clip: text;
 }
 
-.contact-hero-description {
+.features-hero-description {
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
 }
 
-/* Contact Methods Section */
-.contact-methods-section {
+/* Main Features Section */
+.main-features-section {
   padding: 6rem 0;
   background: transparent;
 }
 
-.contact-methods-container {
+.main-features-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
@@ -106,13 +106,13 @@
   margin: 0 auto;
 }
 
-.contact-methods-grid {
+.main-features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
 }
 
-.contact-method-card {
+.main-feature-card {
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
@@ -121,118 +121,68 @@
   backdrop-filter: blur(10px);
 }
 
-.contact-method-card:hover {
+.main-feature-card:hover {
   transform: translateY(-5px);
   background: rgba(0, 0, 0, 0.9);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.contact-method-icon {
+.main-feature-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-.contact-method-title {
+.main-feature-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }
 
-.contact-method-description {
+.main-feature-description {
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
   margin-bottom: 1.5rem;
 }
 
-.contact-method-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.main-feature-list {
+  list-style: none;
+  padding: 0;
 }
 
-.contact-info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.contact-info-item:last-child {
-  border-bottom: none;
-}
-
-.contact-info-label {
+.main-feature-list li {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
 }
 
-.contact-info-value {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  font-size: 0.9rem;
+.main-feature-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
 }
 
-/* Contact Form Section */
-.contact-form-section {
+/* Technical Specifications Section */
+.tech-specs-section {
   padding: 6rem 0;
   background: transparent;
 }
 
-.contact-form-container {
+.tech-specs-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
-.contact-form-content {
+.tech-specs-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
-.contact-form-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.contact-form-description {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.contact-form-features {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-feature {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.form-feature-check {
-  color: #10b981;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.form-feature span:last-child {
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
-}
-
-.contact-form-wrapper {
+.tech-spec-card {
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
@@ -240,63 +190,74 @@
   backdrop-filter: blur(10px);
 }
 
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-label {
+.tech-spec-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
+}
+
+.tech-spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tech-spec-item:last-child {
+  border-bottom: none;
+}
+
+.tech-spec-label {
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
 }
 
-.form-input,
-.form-select,
-.form-textarea {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: white;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+.tech-spec-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+/* CTA Section */
+.cta-section {
+  padding: 6rem 0;
+  background: transparent;
+  text-align: center;
 }
 
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+.cta-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
-.form-select {
-  cursor: pointer;
+.cta-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
-.form-textarea {
-  resize: vertical;
-  min-height: 120px;
+.cta-description {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2.5rem;
 }
 
-.form-submit {
+.cta-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.cta-primary {
+  padding: 1rem 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 8px;
-  padding: 1rem 2rem;
+  border-radius: 50px;
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -305,9 +266,45 @@
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.form-submit:hover {
+.cta-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.cta-primary.large {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+.cta-outline {
+  padding: 1rem 2rem;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-outline:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cta-outline.large {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+.cta-note {
+  margin-top: 1rem;
+}
+
+.cta-note-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Footer */
@@ -352,28 +349,27 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .contact-hero-title {
+  .features-hero-title {
     font-size: 2.5rem;
   }
   
-  .contact-hero-description {
+  .features-hero-description {
     font-size: 1.1rem;
   }
   
-  .contact-methods-grid {
+  .main-features-grid {
     grid-template-columns: 1fr;
   }
   
-  .contact-form-content {
+  .tech-specs-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
   
   .section-title {
     font-size: 2rem;
   }
   
-  .contact-form-title {
+  .cta-title {
     font-size: 2rem;
   }
   
@@ -385,10 +381,22 @@
 }
 
 @media (max-width: 480px) {
-  .contact-hero-container,
-  .contact-methods-container,
-  .contact-form-container,
+  .features-hero-container,
+  .main-features-container,
+  .tech-specs-container,
+  .cta-container,
   .footer-container {
     padding: 0 1rem;
+  }
+  
+  .cta-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cta-primary,
+  .cta-outline {
+    width: 100%;
+    max-width: 300px;
   }
 }
