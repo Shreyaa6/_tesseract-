@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './landing.css';
 
-const Landing = () => {
+const Landing = ({ onNavigate }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [isReverseAnimating, setIsReverseAnimating] = useState(false);
@@ -82,7 +82,7 @@ const Landing = () => {
 
   return (
     <div className="landing-page">
-      <Navbar />
+      <Navbar onNavigate={onNavigate} />
       
       {/* Hero Section */}
       <section className="hero-section">
