@@ -1,5 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './navbar.css';
+
 
 const Navbar = ({ onNavigate }) => {
   const handleNavClick = (page) => {
@@ -12,7 +15,9 @@ const Navbar = ({ onNavigate }) => {
     <nav className="navbar">
       <div className="navbar-container">
         {/* Logo Section */}
+
         <div className="navbar-logo" onClick={() => handleNavClick('landing')}>
+
           <div className="logo-cube">
             <div className="cube">
               <div className="cube-face front"></div>
@@ -23,7 +28,7 @@ const Navbar = ({ onNavigate }) => {
               <div className="cube-face bottom"></div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Links */}
         <div className="navbar-links">
@@ -34,6 +39,19 @@ const Navbar = ({ onNavigate }) => {
           <a href="#docs" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('docs'); }}>Docs</a>
           <a href="#blog" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('blog'); }}>Blog</a>
           <a href="#contact" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('contact'); }}>Contact</a>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="navbar-actions">
+          {user ? (
+            <Link to="/dashboard" className="signup-btn">
+              Dashboard
+            </Link>
+          ) : (
+            <Link to="/login" className="signup-btn">
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>

@@ -1,0 +1,225 @@
+/* Skeleton Loader Styles */
+.skeleton-title {
+  width: 200px;
+  height: 28px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.skeleton-subtitle {
+  width: 300px;
+  height: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-row {
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.skeleton-row:hover {
+  background: rgba(255, 255, 255, 0.01) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  transform: none !important;
+}
+
+/* Repository Cell Skeleton */
+.skeleton-repo-name {
+  width: 120px;
+  height: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.skeleton-repo-org {
+  width: 80px;
+  height: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 3px;
+}
+
+/* Activity Indicator Skeleton */
+.skeleton-activity-indicator {
+  width: 60px;
+  height: 24px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 16px;
+}
+
+/* PR Info Skeleton */
+.skeleton-pr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-pr-count {
+  width: 50px;
+  height: 14px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 3px;
+}
+
+.skeleton-pr-stats {
+  width: 100px;
+  height: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 3px;
+}
+
+/* Contributors Skeleton */
+.skeleton-contributors {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skeleton-avatar {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 50%;
+}
+
+.skeleton-count {
+  width: 30px;
+  height: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Commits Info Skeleton */
+.skeleton-commits-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.skeleton-commit-date {
+  width: 40px;
+  height: 14px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 3px;
+}
+
+.skeleton-commit-count {
+  width: 60px;
+  height: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 3px;
+}
+
+/* Activity Graph Skeleton */
+.skeleton-activity-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-graph {
+  width: 80px;
+  height: 30px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .skeleton-title {
+    width: 150px;
+    height: 24px;
+  }
+  
+  .skeleton-subtitle {
+    width: 200px;
+    height: 14px;
+  }
+  
+  .skeleton-repo-name {
+    width: 100px;
+    height: 14px;
+  }
+  
+  .skeleton-repo-org {
+    width: 70px;
+    height: 10px;
+  }
+  
+  .skeleton-activity-indicator {
+    width: 50px;
+    height: 20px;
+  }
+  
+  .skeleton-pr-count {
+    width: 40px;
+    height: 12px;
+  }
+  
+  .skeleton-pr-stats {
+    width: 80px;
+    height: 10px;
+  }
+  
+  .skeleton-avatar {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .skeleton-count {
+    width: 25px;
+    height: 14px;
+  }
+  
+  .skeleton-commit-date {
+    width: 35px;
+    height: 12px;
+  }
+  
+  .skeleton-commit-count {
+    width: 50px;
+    height: 10px;
+  }
+  
+  .skeleton-graph {
+    width: 60px;
+    height: 25px;
+  }
+}

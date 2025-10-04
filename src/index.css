@@ -1,3 +1,6 @@
+/* Import Montserrat Font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
 /* CSS Custom Properties based on theme.js */
 :root {
   /* Colors */
@@ -40,7 +43,7 @@
   --color-info: #3b82f6;
 
   /* Typography */
-  --font-family-sans: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-family-sans: 'Montserrat', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --font-family-mono: Fira Code, Monaco, Consolas, monospace;
 
   --font-size-xs: 0.75rem;
@@ -124,29 +127,46 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* Base element styles */
+/* Global black background for all pages */
+#root {
+  background-color: #000000;
+  min-height: 100vh;
+}
+
+/* Ensure all main containers have black background */
+main, section, div {
+  background-color: transparent;
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
 }
 
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: var(--color-neutral-50);
-  color: var(--color-neutral-900);
+  background-color: #000000;
+  color: white;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: var(--color-neutral-900);
-    color: var(--color-neutral-100);
+    background-color: #000000;
+    color: white;
   }
 }
 
@@ -172,22 +192,22 @@ a:hover {
   outline: none;
 }
 
-/* Scrollbar styles */
+/* Scrollbar styles - Hidden completely */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 0px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-neutral-100);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-neutral-300);
-  border-radius: var(--radius-full);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neutral-400);
+  background: transparent;
 }
 
 /* Selection styles */
