@@ -1,12 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './navbar.css';
 
 const Navbar = () => {
+  const { user } = useAuth();
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
         {/* Logo Section */}
-        <div className="navbar-logo">
+        <Link to="/" className="navbar-logo">
           <div className="logo-cube">
             <div className="cube">
               <div className="cube-face front"></div>
@@ -17,7 +21,7 @@ const Navbar = () => {
               <div className="cube-face bottom"></div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Links */}
         <div className="navbar-links">
@@ -29,6 +33,19 @@ const Navbar = () => {
           <a href="#docs" className="nav-link">Docs</a>
           <a href="#blog" className="nav-link">Blog</a>
           <a href="#contact" className="nav-link">Contact</a>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="navbar-actions">
+          {user ? (
+            <Link to="/dashboard" className="signup-btn">
+              Dashboard
+            </Link>
+          ) : (
+            <Link to="/login" className="signup-btn">
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>

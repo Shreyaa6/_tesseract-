@@ -3,17 +3,13 @@
   min-height: 100vh;
   background: #000000;
   color: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
 /* Control scrolling based on animation state */
 body {
   overflow: auto;
-}
-
-body.animating {
-  overflow: hidden;
 }
 
 /* Hero Section */
@@ -43,20 +39,27 @@ body.animating {
 
 .cta-primary {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
   border: none;
   border-radius: 50px;
-  color: white;
+  color: black;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .cta-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.cta-primary:active {
+  transform: translateY(0);
 }
 
 .cta-primary.large {
@@ -115,43 +118,35 @@ body.animating {
 
 .hero-cube-container {
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: 300px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .hero-visual.scrolled .hero-cube-container {
-  transform: translateX(-250px);
-}
-
-.hero-visual.reverse .hero-cube-container {
-  transform: translateX(0);
+  transform: translateX(-200px);
 }
 
 .hero-cube {
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
   position: relative;
   transform-style: preserve-3d;
   animation: rotate 8s linear infinite;
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .hero-visual.scrolled .hero-cube {
   animation: rotate360 2s ease-in-out;
 }
 
-.hero-visual.reverse .hero-cube {
-  animation: rotate360Reverse 2s ease-in-out;
-}
-
 .hero-cube-face {
   position: absolute;
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
   background: linear-gradient(135deg, #9F2B68, #B83280, #8B1A5A);
   border: 3px solid #9F2B68;
   box-shadow: 
@@ -162,50 +157,45 @@ body.animating {
 }
 
 .hero-cube-face.front {
-  transform: rotateY(0deg) translateZ(150px);
+  transform: rotateY(0deg) translateZ(100px);
 }
 
 .hero-cube-face.back {
-  transform: rotateY(180deg) translateZ(150px);
+  transform: rotateY(180deg) translateZ(100px);
 }
 
 .hero-cube-face.right {
-  transform: rotateY(90deg) translateZ(150px);
+  transform: rotateY(90deg) translateZ(100px);
 }
 
 .hero-cube-face.left {
-  transform: rotateY(-90deg) translateZ(150px);
+  transform: rotateY(-90deg) translateZ(100px);
 }
 
 .hero-cube-face.top {
-  transform: rotateX(90deg) translateZ(150px);
+  transform: rotateX(90deg) translateZ(100px);
 }
 
 .hero-cube-face.bottom {
-  transform: rotateX(-90deg) translateZ(150px);
+  transform: rotateX(-90deg) translateZ(100px);
 }
 
 .hero-text {
   position: absolute;
   right: 20%;
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 700;
   color: white;
   opacity: 0;
   transform: translateX(50px);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-shadow: 0 0 30px rgba(159, 43, 104, 0.5);
 }
 
 .hero-visual.scrolled .hero-text {
   opacity: 1;
   transform: translateX(0);
-}
-
-.hero-visual.reverse .hero-text {
-  opacity: 0;
-  transform: translateX(50px);
 }
 
 .hero-tagline {
@@ -217,8 +207,8 @@ body.animating {
   color: rgba(255, 255, 255, 0.8);
   opacity: 0;
   transform: translateX(50px);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-align: center;
   max-width: 300px;
 }
@@ -228,9 +218,18 @@ body.animating {
   transform: translateX(0);
 }
 
-.hero-visual.reverse .hero-tagline {
+.hero-actions {
+  position: absolute;
+  right: 20%;
+  top: calc(50% + 6rem);
   opacity: 0;
   transform: translateX(50px);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hero-visual.scrolled .hero-actions {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Scroll Indicator */
@@ -295,15 +294,6 @@ body.animating {
   }
   100% {
     transform: rotateX(360deg) rotateY(360deg);
-  }
-}
-
-@keyframes rotate360Reverse {
-  0% {
-    transform: rotateX(360deg) rotateY(360deg);
-  }
-  100% {
-    transform: rotateX(0deg) rotateY(0deg);
   }
 }
 
@@ -467,8 +457,8 @@ body.animating {
   }
   
   .hero-graphic {
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 200px;
   }
   
   .features-grid {
