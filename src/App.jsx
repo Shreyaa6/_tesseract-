@@ -1,3 +1,7 @@
+import React, { useState } from 'react'
+import Landing from './landing'
+import Blog from './pages/Blog'
+import Contact from './pages/Contact'
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -7,38 +11,17 @@ import Landing from './landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
-// Simple AccessDenied component
-const AccessDenied = () => (
-  <div style={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    height: '100vh', 
-    backgroundColor: '#000', 
-    color: 'white',
-    textAlign: 'center',
-    padding: '2rem'
-  }}>
-    <h1>Access Denied</h1>
-    <p>You don't have the required maintainer permissions for this repository.</p>
-    <p>Please contact the repository owner to request access.</p>
-    <button 
-      onClick={() => window.location.href = '/'}
-      style={{
-        padding: '10px 20px',
-        backgroundColor: 'white',
-        color: 'black',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginTop: '1rem'
-      }}
-    >
-      Go Home
-    </button>
-  </div>
-);
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'blog':
+        return <Blog onNavigate={setCurrentPage} />
+      case 'contact':
+        return <Contact onNavigate={setCurrentPage} />
+      case 'landing':
+      default:
+        return <Landing onNavigate={setCurrentPage} />
+    }
+  }
 
 function App() {
   return (

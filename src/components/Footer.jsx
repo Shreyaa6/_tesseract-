@@ -1,169 +1,171 @@
-import React from 'react';
-import './Footer.css';
+import React, { useState, useRef } from 'react';
+import './footer.css';
 
 const Footer = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const glowContainerRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (glowContainerRef.current) {
+      const rect = glowContainerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMousePosition({ x, y });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setMousePosition({ x: 0, y: 0 });
+  };
+
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        <div className="footer-content">
-          {/* Logo */}
-          <div className="footer-logo">
-            <div className="logo-icon">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                {/* Multi-layered hexagonal logo */}
-                <path 
-                  d="M20 2L38 12L20 22L2 12L20 2Z" 
-                  stroke="white" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M2 28L20 38L38 28" 
-                  stroke="white" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M2 18L20 28L38 18" 
-                  stroke="white" 
-                  strokeWidth="2" 
-                  strokeLinejoin="round"
-                />
-                {/* Inner hexagon */}
-                <path 
-                  d="M20 6L32 12L20 18L8 12L20 6Z" 
-                  stroke="white" 
-                  strokeWidth="1.5" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M8 24L20 30L32 24" 
-                  stroke="white" 
-                  strokeWidth="1.5" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M8 18L20 24L32 18" 
-                  stroke="white" 
-                  strokeWidth="1.5" 
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Footer Columns */}
-          <div className="footer-columns">
-            {/* Features Column */}
-            <div className="footer-column">
-              <h3 className="column-title">Features</h3>
-              <ul className="column-links">
-                <li><a href="#" className="footer-link">CLI</a></li>
-                <li><a href="#" className="footer-link">Merge queue</a></li>
-                <li><a href="#" className="footer-link">Insights</a></li>
-                <li><a href="#" className="footer-link">PR inbox</a></li>
-                <li><a href="#" className="footer-link">AI reviews</a></li>
-                <li>
-                  <a href="#" className="footer-link">
-                    Chat
-                    <span className="badge">NEW</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company Column */}
-            <div className="footer-column">
-              <h3 className="column-title">Company</h3>
-              <ul className="column-links">
-                <li><a href="#" className="footer-link">Blog</a></li>
-                <li><a href="#" className="footer-link">Customers</a></li>
-                <li>
-                  <a href="#" className="footer-link">
-                    Careers
-                    <span className="badge">19</span>
-                  </a>
-                </li>
-                <li><a href="#" className="footer-link">Privacy policy</a></li>
-                <li><a href="#" className="footer-link">Terms of service</a></li>
-              </ul>
-            </div>
-
-            {/* Resources Column */}
-            <div className="footer-column">
-              <h3 className="column-title">Resources</h3>
-              <ul className="column-links">
-                <li><a href="#" className="footer-link">Docs</a></li>
-                <li><a href="#" className="footer-link">Pricing</a></li>
-                <li><a href="#" className="footer-link">Status</a></li>
-                <li><a href="#" className="footer-link">Guides</a></li>
-                <li><a href="#" className="footer-link">Stacking workflow</a></li>
-              </ul>
-            </div>
-
-            {/* Connect Column */}
-            <div className="footer-column">
-              <h3 className="column-title">Connect</h3>
-              <ul className="column-links">
-                <li>
-                  <a href="mailto:contact@tesseract.dev" className="footer-link">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Contact us
-                  </a>
-                </li>
-                <li>
-                  <a href="https://slack.com" className="footer-link" target="_blank" rel="noopener noreferrer">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 12c0 1.66-1.34 3-3 3H6c-1.66 0-3-1.34-3-3s1.34-3 3-3h12c1.66 0 3 1.34 3 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 21c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3s-3 1.34-3 3v12c0 1.66 1.34 3 3 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Community Slack
-                  </a>
-                </li>
-                <li>
-                  <a href="https://github.com" className="footer-link" target="_blank" rel="noopener noreferrer">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a href="https://twitter.com" className="footer-link" target="_blank" rel="noopener noreferrer">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    X (Twitter)
-                  </a>
-                </li>
-                <li>
-                  <a href="https://linkedin.com" className="footer-link" target="_blank" rel="noopener noreferrer">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    LinkedIn
-                  </a>
-                </li>
-                <li>
-                  <a href="https://youtube.com" className="footer-link" target="_blank" rel="noopener noreferrer">
-                    <svg className="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <polygon points="9.75,15.02 15.5,11.75 9.75,8.48" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    YouTube
-                  </a>
-                </li>
-              </ul>
+    <>
+      {/* Hero Section */}
+      {/* <section className="footer-hero">
+        <div className="footer-hero-content">
+          <h2 className="footer-hero-title">
+            Built for the world's fastest engineering teams, now available for everyone
+          </h2>
+          <div className="footer-hero-actions">
+            <button className="footer-demo-btn">Request a demo</button>
+            <div
+              className="cta-glow-container"
+              ref={glowContainerRef}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                '--mouse-x': `${mousePosition.x}px`,
+                '--mouse-y': `${mousePosition.y}px`
+              }}
+            >
+              <div className="cta-glow cta-glow-1"></div>
+              <div className="cta-glow cta-glow-2"></div>
+              <button className="footer-trial-btn">Start free trial →</button>
             </div>
           </div>
         </div>
-      </div>
-    </footer>
+        <div className="footer-hero-bg">
+          <div className="hexagon-pattern"></div>
+        </div>
+        <div className="footer-hero-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 2L22 7L12 12L2 7L12 2Z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 17L12 22L22 17"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 12L12 17L22 12"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </section> */}
+
+      {/* Footer */}
+      <footer className="blog-footer">
+        {/* Footer Links */}
+        <div className="footer-container">
+          <div className="footer-columns">
+            <div className="footer-column">
+              <h3 className="footer-title">Features</h3>
+              <ul className="footer-links">
+                <li><a href="#cli">CLI</a></li>
+                <li><a href="#merge-queue">Merge queue</a></li>
+                <li><a href="#insights">Insights</a></li>
+                <li><a href="#pr-inbox">PR inbox</a></li>
+                <li><a href="#ai-reviews">AI reviews</a></li>
+                <li><a href="#chat">Chat <span className="new-badge">NEW</span></a></li>
+              </ul>
+            </div>
+            
+            <div className="footer-column">
+              <h3 className="footer-title">Company</h3>
+              <ul className="footer-links">
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#customers">Customers</a></li>
+                <li><a href="#careers">Careers <span className="job-count">19</span></a></li>
+                <li><a href="#privacy">Privacy policy</a></li>
+                <li><a href="#terms">Terms of service</a></li>
+              </ul>
+            </div>
+            
+            <div className="footer-column">
+              <h3 className="footer-title">Resources</h3>
+              <ul className="footer-links">
+                <li><a href="#docs">Docs</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#status">Status</a></li>
+                <li><a href="#guides">Guides</a></li>
+                <li><a href="#stacking">Stacking workflow</a></li>
+              </ul>
+            </div>
+            
+            <div className="footer-column">
+              <h3 className="footer-title">Connect</h3>
+              <ul className="footer-links">
+                <li><a href="#contact">📧 Contact us</a></li>
+                <li><a href="#slack"># Community Slack</a></li>
+                <li><a href="#github">🐙 GitHub</a></li>
+                <li><a href="#twitter">𝕏 X</a></li>
+                <li><a href="#linkedin">💼 LinkedIn</a></li>
+                <li><a href="#youtube">📺 YouTube</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="footer-bottom">
+            <div className="footer-status">
+              <span className="status-indicator">🟢</span>
+              <span>All systems operational</span>
+            </div>
+            <div className="footer-copyright">
+              © Tesseract 2025
+            </div>
+          </div>
+        </div>
+
+        {/* Neon Sign Section */}
+        <section className="neon-section">
+          <div className="neon-container">
+            <div className="neon-sign">
+              <h1 className="neon-text">
+                {'Tesseract'.split('').map((letter, index) => (
+                  <span
+                    key={index}
+                    className="neon-letter"
+                    style={{ '--delay': `${index * 0.1}s` }}
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </h1>
+            </div>
+            <div className="neon-status">
+              <span className="status-dot">🟢</span>
+              <span className="status-text">All systems operational</span>
+            </div>
+            <div className="neon-copyright">
+              © Tesseract 2025
+            </div>
+            <div className="neon-url">
+              <div className="url-box">
+                https://graphite.dev/homepage
+              </div>
+            </div>
+          </div>
+        </section>
+      </footer>
+    </>
   );
 };
 

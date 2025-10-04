@@ -39,19 +39,6 @@ const Navbar = ({ onNavigate }) => {
           <a href="#blog" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('blog'); }}>Blog</a>
           <a href="#contact" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('contact'); }}>Contact</a>
         </div>
-
-        {/* Action Buttons */}
-        <div className="navbar-actions">
-          {user ? (
-            <Link to="/dashboard" className="signup-btn">
-              Dashboard
-            </Link>
-          ) : (
-            <Link to="/login" className="signup-btn">
-              Sign In
-            </Link>
-          )}
-        </div>
       </div>
     </nav>
   );
