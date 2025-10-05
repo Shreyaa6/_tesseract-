@@ -378,10 +378,10 @@ const Dashboard = () => {
                 className="user-avatar"
               />
               <span className="user-name">{user?.name || user?.login}</span>
+              <button className="logout-btn" onClick={logout}>
+                Logout
+              </button>
             </div>
-            <button className="logout-btn" onClick={logout}>
-              Logout
-            </button>
           </div>
         </div>
       </nav>
