@@ -1,7 +1,8 @@
 /* Landing Page Styles */
 .landing-page {
   min-height: 100vh;
-  background: #000000;
+  background: url('./assets/comet.png') center/cover no-repeat;
+  background-attachment: fixed;
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
@@ -14,7 +15,7 @@
   display: flex;
   align-items: center;
   padding-top: 0; /* Remove padding since navbar is now floating */
-  background: #000000;
+  background: transparent;
   position: relative;
   overflow: hidden;
 }
@@ -262,7 +263,7 @@
 /* Developer Infrastructure Section */
 .infrastructure-section {
   padding: 6rem 0;
-  background: #000000;
+  background: transparent;
 }
 
 .infrastructure-container {
@@ -277,20 +278,28 @@
 }
 
 .section-title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: white;
+  font-size: 4rem;
+  font-weight: 900;
+  color: #ffffff;
   margin-bottom: 1rem;
   line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-rendering: optimizeLegibility;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.section-subtitle {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.5;
+.section-continuation {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
+
+/* Removed section-subtitle as text is now inline */
 
 .infrastructure-content {
   display: grid;
@@ -305,62 +314,179 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 }
 
 .card-stack {
   position: relative;
-  width: 200px;
-  height: 300px;
+  width: 400px;
+  height: 200px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  margin-top: -50px;
+}
+
+/* Stack container floating animation */
+@keyframes stackFloat {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotateX(2deg) rotateY(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(0deg) rotateY(0deg);
+  }
+  75% {
+    transform: translateY(-5px) rotateX(-2deg) rotateY(2deg);
+  }
 }
 
 .tech-card {
   position: absolute;
-  width: 180px;
-  height: 120px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  width: 200px;
+  height: 140px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(15, 15, 15, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-  /* Isometric 3D effect */
+  backdrop-filter: blur(30px) saturate(1.3);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.7),
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-style: preserve-3d;
+  /* Clean rectangular shape */
+  position: relative;
+}
+
+.tech-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent);
+  border-radius: 24px;
+  pointer-events: none;
 }
 
 .tech-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transform: translateY(-20px) scale(1.08) rotateX(5deg);
+  box-shadow: 
+    0 40px 100px rgba(0, 0, 0, 0.8),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(30, 30, 30, 0.7));
+  border-color: rgba(255, 255, 255, 0.3);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Card positioning with 3D isometric effect */
+/* Floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Pure horizontal 3D closely stacked */
 .tesseract-card {
   top: 0;
   left: 0;
-  transform: rotateX(15deg) rotateY(-15deg) rotateZ(-2deg) translateZ(20px);
-  z-index: 3;
+  transform: rotateX(0deg) rotateY(-20deg) translateZ(10px);
+  z-index: 1;
 }
 
 .github-card {
-  top: 60px;
-  left: 20px;
-  transform: rotateX(10deg) rotateY(-10deg) rotateZ(1deg) translateZ(10px);
+  top: 0;
+  left: 80px;
+  transform: rotateX(0deg) rotateY(-10deg) translateZ(30px);
   z-index: 2;
 }
 
 .git-card {
-  top: 120px;
-  left: 10px;
-  transform: rotateX(5deg) rotateY(-5deg) rotateZ(-1deg) translateZ(0px);
-  z-index: 1;
+  top: 0;
+  left: 160px;
+  transform: rotateX(0deg) rotateY(0deg) translateZ(50px);
+  z-index: 3;
 }
+
+/* Horizontal axis flip animation - like pages in a book */
+@keyframes horizontalFlip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  25% {
+    transform: rotateX(90deg);
+  }
+  50% {
+    transform: rotateX(180deg);
+  }
+  75% {
+    transform: rotateX(270deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+/* Remove old individual animations - using unified cardFlip animation */
 
 .card-logo {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  position: relative;
+  z-index: 2;
+}
+
+.card-logo svg {
+  width: 70px;
+  height: 70px;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Enhanced logo styling for sophisticated appearance */
+.tesseract-card .card-logo svg {
+  filter: 
+    brightness(1.3) 
+    contrast(1.1)
+    drop-shadow(0 4px 8px rgba(255, 255, 255, 0.4))
+    drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+}
+
+.github-card .card-logo svg {
+  filter: 
+    brightness(1.2) 
+    contrast(1.1)
+    drop-shadow(0 4px 8px rgba(139, 69, 19, 0.5))
+    drop-shadow(0 0 20px rgba(139, 69, 19, 0.3));
+}
+
+.git-card .card-logo svg {
+  filter: 
+    brightness(1.2) 
+    contrast(1.1)
+    drop-shadow(0 4px 8px rgba(255, 140, 0, 0.5))
+    drop-shadow(0 0 20px rgba(255, 140, 0, 0.3));
+}
+
+.tech-card:hover .card-logo svg {
+  transform: scale(1.15) rotateY(10deg);
+  filter: brightness(1.5) contrast(1.2);
 }
 
 /* Right Side - Text Blocks */
@@ -506,7 +632,7 @@
 /* Five Cards Section */
 .five-cards-section {
   padding: 6rem 0;
-  background: #000000;
+  background: transparent;
 }
 
 .five-cards-container {
@@ -685,12 +811,57 @@
   }
 }
 
-/* CTA Section */
-.cta-section {
-  padding: 8rem 0;
-  background: #1A1A1A;
-  position: relative;
-  overflow: hidden;
+/* Tesseract Text Section */
+.tesseract-text-section {
+  padding: 4rem 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tesseract-text-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tesseract-text {
+  font-size: 8rem;
+  font-weight: 700;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+/* Responsive Design for Tesseract Text */
+@media (max-width: 1200px) {
+  .tesseract-text {
+    font-size: 6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tesseract-text-section {
+    padding: 3rem 0;
+  }
+  
+  .tesseract-text {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tesseract-text-section {
+    padding: 2rem 0;
+  }
+  
+  .tesseract-text {
+    font-size: 3rem;
+  }
 }
 
 .cta-container {
@@ -805,27 +976,7 @@
   z-index: 10;
 }
 
-.cta-primary {
-  background: linear-gradient(90deg, #9F2B68 0%, #B83280 100%);
-  border: none;
-  border-radius: 50px;
-  padding: 1rem 2rem;
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(159, 43, 104, 0.3);
-}
-
-.cta-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(159, 43, 104, 0.4);
-}
-
-.cta-secondary {
+.cta-learn-more {
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
@@ -840,7 +991,7 @@
   box-shadow: 0 0 20px rgba(159, 43, 104, 0.2);
 }
 
-.cta-secondary:hover {
+.cta-learn-more:hover {
   transform: translateY(-2px);
   background: rgba(0, 0, 0, 0.9);
   border-color: rgba(255, 255, 255, 0.4);
@@ -901,8 +1052,7 @@
     align-items: center;
   }
   
-  .cta-primary,
-  .cta-secondary,
+  .cta-learn-more,
   .cta-outline {
     width: 100%;
     max-width: 300px;

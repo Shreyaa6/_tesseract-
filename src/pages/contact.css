@@ -125,33 +125,39 @@
 }
 
 .contact-form-container {
-    padding-top: 2rem;
+  padding-top: 2rem;
   width: 100%;
   max-width: 500px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Tabs */
 .contact-tabs {
   display: flex;
   margin-bottom: 2rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tab-btn {
   background: none;
   border: none;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   padding: 1rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-bottom: 2px solid transparent;
 }
 
 .tab-btn.active {
   color: white;
-  border-bottom-color: #9f2b68;
+  border-bottom-color: rgba(159, 43, 104, 0.8);
 }
 
 .tab-btn:hover {
@@ -174,25 +180,27 @@
 
 .form-group input,
 .form-group textarea {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
   color: white;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #9f2b68;
-  box-shadow: 0 0 0 3px rgba(159, 43, 104, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #666;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .form-group textarea {
@@ -206,6 +214,7 @@
   font-weight: 600;
   font-size: 1rem;
   margin-bottom: 0.75rem;
+  opacity: 0.9;
 }
 
 /* Interest Buttons */
@@ -216,51 +225,58 @@
 }
 
 .interest-btn {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: #666;
-  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.875rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
 }
 
 .interest-btn:hover {
-  border-color: #9f2b68;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
   color: white;
 }
 
 .interest-btn.selected {
-  background: #9f2b68;
-  border-color: #9f2b68;
+  background: rgba(159, 43, 104, 0.3);
+  border-color: rgba(159, 43, 104, 0.5);
   color: white;
+  box-shadow: 0 0 20px rgba(159, 43, 104, 0.2);
 }
 
 /* Submit Button */
 .submit-btn {
-  background: #9f2b68;
+  background: rgba(159, 43, 104, 0.8);
   color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 1rem 2rem;
+  border: 1px solid rgba(159, 43, 104, 0.5);
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(159, 43, 104, 0.3);
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #b83280;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(159, 43, 104, 0.3);
+  background: rgba(159, 43, 104, 1);
+  border-color: rgba(159, 43, 104, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(159, 43, 104, 0.4);
 }
 
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Responsive Design */
