@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Exchanging code for token:', code);
       
       // Exchange code for access token
-      const tokenResponse = await fetch('https://server-tesserect-qdey.vercel.app/api/auth/github', {
+      const tokenResponse = await fetch('http://localhost:3001/api/auth/github', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
