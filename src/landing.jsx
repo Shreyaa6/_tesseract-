@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import './landing.css';
 
 const Landing = () => {
@@ -85,10 +84,12 @@ const Landing = () => {
       <section className="infrastructure-section" id="infrastructure">
         <div className="infrastructure-container">
           <div className="section-header">
-            <h2 className="section-title">Developer infrastructure built for your team</h2>
-            <p className="section-subtitle">
-              _tesseract/ works seamlessly with the technologies you already use
-            </p>
+            <h2 className="section-title">
+              Developer infrastructure built for your team
+              <span className="section-continuation">
+                _tesseract/ works seamlessly with the technologies you already use
+              </span>
+            </h2>
           </div>
           
           <div className="infrastructure-content">
@@ -237,13 +238,17 @@ const Landing = () => {
           </div>
           <h2 className="cta-title">Built for the world's fastest engineering teams, now free for everyone</h2>
           <div className="cta-actions">
-            <button className="cta-primary" onClick={handleGetStarted}>Get Started Free</button>
-            <button className="cta-secondary" onClick={handleLearnMore}>Learn More →</button>
+            <button className="cta-learn-more" onClick={handleLearnMore}>Learn More →</button>
           </div>
         </div>
       </section>
 
-      {/* <Footer /> */}
+      {/* Tesseract Text Section */}
+      {/* <section className="tesseract-text-section">
+        <div className="tesseract-text-container">
+          <h1 className="tesseract-text">Tesseract</h1>
+        </div>
+      </section> */}
     </div>
   );
 };

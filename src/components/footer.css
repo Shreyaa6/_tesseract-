@@ -1,8 +1,142 @@
-/* Footer Styles */
+/* Footer Styles - Dark Design */
 .blog-footer {
   background: #000000;
   color: white;
   padding: 0;
+}
+
+/* Footer Container */
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: flex;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+/* Footer Logo */
+.footer-logo {
+  flex-shrink: 0;
+}
+
+/* Footer Columns */
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem;
+  flex: 1;
+}
+
+.footer-column {
+  flex: 1;
+}
+
+.footer-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: white;
+}
+
+/* Social Links with Icons */
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.social-link svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.social-link:hover svg {
+  transform: scale(1.1);
+}
+
+/* Badges */
+.new-badge {
+  background: #333;
+  color: #ccc;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+.job-count {
+  background: #333;
+  color: #ccc;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 2rem;
+  border-top: 1px solid #333;
+  background: #000000;
+}
+
+.footer-copyright {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 3rem 1.5rem 2rem;
+  }
+  
+  .footer-columns {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  
+  .footer-bottom {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    padding: 2rem 1rem 1.5rem;
+  }
+  
+  .footer-columns {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 
 /* Footer Hero Section */
@@ -309,10 +443,11 @@
 
 .footer-bottom {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding-top: 2rem;
   border-top: 1px solid #333;
+  background: linear-gradient(180deg, #000000 0%, #000000 100%);
 }
 
 .footer-status {
@@ -326,11 +461,7 @@
 .status-indicator {
   font-size: 0.8rem;
 }
-.footer-bottom {
-  background: linear-gradient(180deg, #000000 0%, #000000 100%);
-  align-items: center;
-  justify-content: center;
-}
+
 .footer-copyright {
   color: #666;
   font-size: 0.9rem;
