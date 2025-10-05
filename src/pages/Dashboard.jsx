@@ -420,9 +420,9 @@ const Dashboard = () => {
                   </div>
 
                   {reposWithAccess.map((repo, index) => (
-                    <div key={repo.id} className="table-row">
+                    <div key={repo.id} className="table-row" onClick={() => navigate(`/repository/${repo.owner.login}/${repo.name}`)}>
                       <div className="table-cell">
-                        <div className="repo-cell" onClick={() => navigate(`/repository/${repo.owner.login}/${repo.name}`)}>
+                        <div className="repo-cell">
                           <div className="repo-info-cell">
                             <div className="repo-name">{repo.name}</div>
                             <div className="repo-org">@{repo.owner.login}</div>
