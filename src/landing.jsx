@@ -1,84 +1,55 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './landing.css';
 
 const Landing = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [isReverseAnimating, setIsReverseAnimating] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    const handleScroll = (e) => {
-      // Prevent scrolling during animations
-      if (isAnimating) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      
+    const handleScroll = () => {
       // Enable scrolling immediately on first scroll
       if (!animationComplete) {
         setAnimationComplete(true);
         document.body.classList.add('scroll-enabled');
       }
       
-      // Handle animations based on scroll direction
-      if (window.scrollY > 200 && !isScrolled && !isReverseAnimating && !isAnimating) {
+      // Handle animations based on scroll direction with smooth transitions
+      if (window.scrollY > 50 && !isScrolled && !isReverseAnimating) {
         // Scrolling down - trigger forward animation
-        setIsAnimating(true);
-        document.body.classList.add('animating');
         setIsScrolled(true);
-        
-        // Allow scrolling after animation completes
-        setTimeout(() => {
-          setIsAnimating(false);
-          document.body.classList.remove('animating');
-        }, 2000);
-      } else if (window.scrollY < 100 && isScrolled && !isReverseAnimating && !isAnimating) {
+      } else if (window.scrollY < 30 && isScrolled && !isReverseAnimating) {
         // Scrolling up - trigger reverse animation
-        setIsAnimating(true);
-        document.body.classList.add('animating');
         setIsReverseAnimating(true);
         setIsScrolled(false);
         
-        // Reset flags after completion
+        // Reset reverse animation flag after a short delay
         setTimeout(() => {
           setIsReverseAnimating(false);
-          setIsAnimating(false);
-          document.body.classList.remove('animating');
-        }, 2000);
+        }, 1000);
       }
     };
 
-    const handleWheel = (e) => {
-      if (isAnimating) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      if (isAnimating && (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ' || e.key === 'ArrowUp' || e.key === 'PageUp')) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    // Add event listeners
-    window.addEventListener('scroll', handleScroll, { passive: false });
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown, { passive: false });
+    // Add event listener with passive: true for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isScrolled, animationComplete, isReverseAnimating, isAnimating]);
+  }, [isScrolled, animationComplete, isReverseAnimating]);
+
+  const handleGetStarted = () => {
+    console.log('Get Started button clicked!'); // Debug log
+    navigate('/login');
+  };
+
+  const handleLearnMore = () => {
+    navigate('/features');
+  };
 
   return (
     <div className="landing-page">
@@ -264,10 +235,10 @@ const Landing = () => {
               <div className="line line-6"></div>
             </div>
           </div>
-          <h2 className="cta-title">Built for the world's fastest engineering teams, now available for everyone</h2>
+          <h2 className="cta-title">Built for the world's fastest engineering teams, now free for everyone</h2>
           <div className="cta-actions">
-            <button className="cta-primary">Request a demo</button>
-            <button className="cta-secondary">Start free trial →</button>
+            <button className="cta-primary" onClick={handleGetStarted}>Get Started Free</button>
+            <button className="cta-secondary" onClick={handleLearnMore}>Learn More →</button>
           </div>
         </div>
       </section>
