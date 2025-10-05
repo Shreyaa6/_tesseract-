@@ -20,9 +20,13 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('tesseract_user');
     const storedToken = localStorage.getItem('tesseract_token');
     
+    console.log('AuthContext init - storedUser:', storedUser ? 'found' : 'not found');
+    console.log('AuthContext init - storedToken:', storedToken ? 'found' : 'not found');
+    
     if (storedUser && storedToken) {
       try {
         const userData = JSON.parse(storedUser);
+        console.log('AuthContext init - setting user from localStorage:', userData.login);
         setUser(userData);
         checkMaintainerStatus(userData.login, storedToken);
       } catch (error) {
@@ -105,12 +109,28 @@ export const AuthProvider = ({ children }) => {
       console.log('Token response ok:', tokenResponse.ok);
 
       if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.json();
+        let errorData;
+        try {
+          errorData = await tokenResponse.json();
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          const errorText = await tokenResponse.text();
+          console.error('Raw error response:', errorText);
+          throw new Error(`Server error: ${tokenResponse.status} - ${errorText || 'Unknown error'}`);
+        }
         console.error('Token exchange failed:', errorData);
         throw new Error(`Failed to exchange code for token: ${errorData.error || 'Unknown error'}`);
       }
 
-      const tokenData = await tokenResponse.json();
+      let tokenData;
+      try {
+        tokenData = await tokenResponse.json();
+      } catch (parseError) {
+        console.error('Failed to parse token response:', parseError);
+        const responseText = await tokenResponse.text();
+        console.error('Raw token response:', responseText);
+        throw new Error('Invalid response from server - not valid JSON');
+      }
       console.log('Token data received:', tokenData);
       
       const { access_token } = tokenData;
@@ -140,8 +160,15 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('tesseract_user', JSON.stringify(userData));
       localStorage.setItem('tesseract_token', access_token);
 
+      console.log('Setting user state:', userData.login);
       setUser(userData);
       await checkMaintainerStatus(userData.login, access_token);
+      
+      // Ensure state is updated before returning
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      console.log('Login completed successfully, user state should be updated');
+      return { success: true, user: userData };
       
     } catch (error) {
       console.error('Login error:', error);

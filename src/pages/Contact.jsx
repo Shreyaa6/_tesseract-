@@ -1,199 +1,198 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import './contact.css';
 
-const Contact = () => {
+const Contact = ({ onNavigate }) => {
+  const [activeTab, setActiveTab] = useState('message');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    phone: '',
+    interests: [],
+    message: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleInterestChange = (interest) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(item => item !== interest)
+        : [...prev.interests, interest]
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert('Thank you for your submission! We\'ll get back to you soon.');
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        interests: [],
+        message: ''
+      });
+    }, 2000);
+  };
+
+  const interests = [
+    'Product Launch',
+    'Growth Strategies',
+    'Branding',
+    'Content',
+    'Web Development'
+  ];
+
   return (
     <div className="contact-page">
-      <Navbar />
+      <Navbar onNavigate={onNavigate} />
       
-      {/* Hero Section */}
-      <section className="contact-hero">
-        <div className="contact-hero-container">
-          <h1 className="contact-hero-title">
-            Get in Touch
-            <span className="gradient-text"> with Our Team</span>
-          </h1>
-          <p className="contact-hero-description">
-            Have questions about our GitHub repository tracking platform? 
-            We're here to help you get the most out of your development workflow.
-          </p>
-        </div>
-      </section>
-
-      {/* Contact Methods Section */}
-      <section className="contact-methods-section">
-        <div className="contact-methods-container">
-          <div className="section-header">
-            <h2 className="section-title">Contact Methods</h2>
-            <p className="section-description">
-              Choose the best way to reach us
-            </p>
-          </div>
-          <div className="contact-methods-grid">
-            <div className="contact-method-card">
-              <div className="contact-method-icon"></div>
-              <h3 className="contact-method-title">Email Support</h3>
-              <p className="contact-method-description">
-                Get help with technical questions, feature requests, or general inquiries.
+      <main className="contact-main">
+        <div className="contact-container">
+          {/* Left Side - Hero Section */}
+          <div className="contact-left">
+            <div className="contact-hero-content">
+              <h1 className="contact-hero-title">Let's get down to business</h1>
+              <p className="contact-hero-description">
+                We'd love to chat! If you fill out the information below, someone from the team will reach out right away!
               </p>
-              <div className="contact-method-info">
-                <div className="contact-info-item">
-                  <span className="contact-info-label">General:</span>
-                  <span className="contact-info-value">hello@tesseract.dev</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Support:</span>
-                  <span className="contact-info-value">support@tesseract.dev</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Response Time:</span>
-                  <span className="contact-info-value">Within 24 hours</span>
-                </div>
-              </div>
             </div>
-            <div className="contact-method-card">
-              <div className="contact-method-icon"></div>
-              <h3 className="contact-method-title">Community Discord</h3>
-              <p className="contact-method-description">
-                Join our Discord community for real-time discussions, tips, and updates.
-              </p>
-              <div className="contact-method-info">
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Server:</span>
-                  <span className="contact-info-value">discord.gg/tesseract</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Members:</span>
-                  <span className="contact-info-value">2,500+ developers</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Activity:</span>
-                  <span className="contact-info-value">24/7 community</span>
-                </div>
-              </div>
-            </div>
-            <div className="contact-method-card">
-              <div className="contact-method-icon"></div>
-              <h3 className="contact-method-title">GitHub Issues</h3>
-              <p className="contact-method-description">
-                Report bugs, request features, or contribute to our open-source projects.
-              </p>
-              <div className="contact-method-info">
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Repository:</span>
-                  <span className="contact-info-value">github.com/tesseract-dev</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Issues:</span>
-                  <span className="contact-info-value">Open source</span>
-                </div>
-                <div className="contact-info-item">
-                  <span className="contact-info-label">Contributions:</span>
-                  <span className="contact-info-value">Welcome</span>
-                </div>
+            
+            {/* Cube Animation */}
+            <div className="contact-cube-container">
+              <div className="contact-cube">
+                <div className="contact-cube-face front"></div>
+                <div className="contact-cube-face back"></div>
+                <div className="contact-cube-face right"></div>
+                <div className="contact-cube-face left"></div>
+                <div className="contact-cube-face top"></div>
+                <div className="contact-cube-face bottom"></div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Contact Form Section */}
-      <section className="contact-form-section">
-        <div className="contact-form-container">
-          <div className="contact-form-content">
-            <div className="contact-form-text">
-              <h2 className="contact-form-title">Send us a Message</h2>
-              <p className="contact-form-description">
-                Have a specific question or need personalized assistance? 
-                Fill out the form below and we'll get back to you as soon as possible.
-              </p>
-              <div className="contact-form-features">
-                <div className="form-feature">
-                  <span className="form-feature-check">✓</span>
-                  <span>Free consultation</span>
-                </div>
-                <div className="form-feature">
-                  <span className="form-feature-check">✓</span>
-                  <span>Custom setup assistance</span>
-                </div>
-                <div className="form-feature">
-                  <span className="form-feature-check">✓</span>
-                  <span>Priority support</span>
-                </div>
+          
+          {/* Right Side - Contact Form */}
+          <div className="contact-right">
+            <div className="contact-form-container">
+              {/* Tabs */}
+              <div className="contact-tabs">
+                <button 
+                  className={`tab-btn ${activeTab === 'message' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('message')}
+                >
+                  Send a Message
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'call' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('call')}
+                >
+                  Schedule a Call
+                </button>
               </div>
-            </div>
-            <div className="contact-form-wrapper">
-              <form className="contact-form">
+              
+              {/* Contact Form */}
+              <form onSubmit={handleSubmit} className="contact-form">
                 <div className="form-group">
-                  <label htmlFor="name" className="form-label">Name</label>
-                  <input type="text" id="name" className="form-input" placeholder="Your full name" />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Name"
+                    required
+                  />
                 </div>
+                
                 <div className="form-group">
-                  <label htmlFor="email" className="form-label">Email</label>
-                  <input type="email" id="email" className="form-input" placeholder="your.email@example.com" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email"
+                    required
+                  />
                 </div>
+                
                 <div className="form-group">
-                  <label htmlFor="company" className="form-label">Company (Optional)</label>
-                  <input type="text" id="company" className="form-input" placeholder="Your company name" />
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    placeholder="Company"
+                    required
+                  />
                 </div>
+                
                 <div className="form-group">
-                  <label htmlFor="subject" className="form-label">Subject</label>
-                  <select id="subject" className="form-select">
-                    <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="support">Technical Support</option>
-                    <option value="feature">Feature Request</option>
-                    <option value="integration">Integration Help</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="Phone number"
+                    required
+                  />
                 </div>
+                
                 <div className="form-group">
-                  <label htmlFor="message" className="form-label">Message</label>
-                  <textarea id="message" className="form-textarea" rows="5" placeholder="Tell us how we can help you..."></textarea>
+                  <label className="section-label">What are you looking for?</label>
+                  <div className="interest-buttons">
+                    {interests.map((interest, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className={`interest-btn ${formData.interests.includes(interest) ? 'selected' : ''}`}
+                        onClick={() => handleInterestChange(interest)}
+                      >
+                        {interest}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <button type="submit" className="form-submit">Send Message</button>
+                
+                <div className="form-group">
+                  <label className="section-label">About Your Project</label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    placeholder="Type your message..."
+                    rows="6"
+                    required
+                  />
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </button>
               </form>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-content">
-            <div className="footer-logo">
-              <div className="logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path 
-                    d="M12 2L22 7L12 12L2 7L12 2Z" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinejoin="round"
-                  />
-                  <path 
-                    d="M2 17L12 22L22 17" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinejoin="round"
-                  />
-                  <path 
-                    d="M2 12L12 17L22 12" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <span>_tesseract/</span>
-            </div>
-            <p className="footer-text">
-              © 2024 _tesseract/. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      </main>
     </div>
   );
 };

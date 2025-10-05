@@ -4,9 +4,17 @@ import { useAuth } from '../contexts/AuthContext';
 import './Login.css';
 
 const Login = () => {
-  const { login, loading } = useAuth();
+  const { login, loading, user } = useAuth();
   const navigate = useNavigate();
   const processedCodeRef = useRef(null);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      console.log('User already authenticated, redirecting to dashboard');
+      window.location.href = '/dashboard';
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check if we have a code in the URL (OAuth callback)
@@ -31,19 +39,25 @@ const Login = () => {
   const handleGitHubCallback = async (code) => {
     try {
       console.log('Processing OAuth callback with code:', code);
-      await login(code);
+      const result = await login(code);
       
-      // Check if we're in a popup window
-      if (window.opener) {
-        console.log('OAuth successful in popup, notifying parent window');
-        // Notify the parent window that OAuth was successful
-        window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
-        // Close the popup
-        window.close();
+      if (result && result.success) {
+        console.log('Login successful, user data:', result.user);
+        
+        // Check if we're in a popup window
+        if (window.opener) {
+          console.log('OAuth successful in popup, notifying parent window');
+          // Notify the parent window that OAuth was successful
+          window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
+          // Close the popup
+          window.close();
+        } else {
+          console.log('OAuth successful, redirecting to dashboard');
+          // Force a page reload to ensure AuthContext picks up the new state
+          window.location.href = '/dashboard';
+        }
       } else {
-        console.log('OAuth successful, redirecting to dashboard');
-        // Redirect to dashboard - ProtectedRoute will handle maintainer check
-        navigate('/dashboard');
+        throw new Error('Login did not complete successfully');
       }
     } catch (error) {
       console.error('Authentication failed:', error);
@@ -85,8 +99,17 @@ const Login = () => {
         if (popup.closed) {
           clearInterval(checkClosed);
           console.log('OAuth popup closed');
-          // Refresh the page to check for authentication
-          window.location.reload();
+          // Check if user is now authenticated and redirect to dashboard
+          setTimeout(() => {
+            const storedUser = localStorage.getItem('tesseract_user');
+            if (storedUser) {
+              console.log('User authenticated, redirecting to dashboard');
+              window.location.href = '/dashboard';
+            } else {
+              console.log('Authentication failed or incomplete');
+              // Optionally show an error message or stay on login page
+            }
+          }, 200); // Small delay to ensure localStorage is updated
         }
       }, 1000);
       
@@ -99,8 +122,10 @@ const Login = () => {
           popup.close();
           clearInterval(checkClosed);
           window.removeEventListener('message', messageListener);
-          // Redirect to dashboard or reload
-          window.location.href = '/dashboard';
+          // Redirect to dashboard with small delay
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 100);
         } else if (event.data.type === 'OAUTH_ERROR') {
           console.error('OAuth failed:', event.data.error);
           popup.close();

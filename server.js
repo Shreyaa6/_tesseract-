@@ -58,12 +58,18 @@ app.post('/api/auth/github', async (req, res) => {
 
     if (!GITHUB_CLIENT_ID || GITHUB_CLIENT_ID === 'your-github-client-id') {
       console.log('ERROR: GitHub Client ID not configured properly');
-      return res.status(500).json({ error: 'GitHub OAuth not configured' });
+      return res.status(500).json({ 
+        error: 'GitHub OAuth not configured',
+        details: 'Client ID is missing or not properly set'
+      });
     }
 
     if (!GITHUB_CLIENT_SECRET || GITHUB_CLIENT_SECRET === 'your-github-client-secret') {
       console.log('ERROR: GitHub Client Secret not configured properly');
-      return res.status(500).json({ error: 'GitHub OAuth not configured' });
+      return res.status(500).json({ 
+        error: 'GitHub OAuth not configured',
+        details: 'Client Secret is missing or not properly set'
+      });
     }
 
     console.log('Making request to GitHub OAuth API...');
@@ -85,50 +91,86 @@ app.post('/api/auth/github', async (req, res) => {
     console.log('GitHub API Response Status:', tokenResponse.status);
     console.log('GitHub API Response Headers:', Object.fromEntries(tokenResponse.headers.entries()));
 
-    const tokenData = await tokenResponse.json();
+    let tokenData;
+    try {
+      tokenData = await tokenResponse.json();
+    } catch (parseError) {
+      console.log('ERROR: Failed to parse GitHub API response:', parseError);
+      const responseText = await tokenResponse.text();
+      console.log('Raw GitHub API response:', responseText);
+      return res.status(500).json({ 
+        error: 'Invalid response from GitHub API',
+        details: 'Server could not parse GitHub response'
+      });
+    }
+    
     console.log('GitHub API Response Data:', tokenData);
 
     if (tokenData.error) {
       console.log('ERROR: GitHub API returned error:', tokenData.error);
-      return res.status(400).json({ error: tokenData.error_description || 'Failed to exchange code for token' });
+      return res.status(400).json({ 
+        error: tokenData.error_description || 'Failed to exchange code for token',
+        github_error: tokenData.error
+      });
     }
 
     if (!tokenData.access_token) {
       console.log('ERROR: No access token in response');
-      return res.status(400).json({ error: 'No access token received from GitHub' });
+      return res.status(400).json({ 
+        error: 'No access token received from GitHub',
+        details: 'GitHub OAuth response missing access_token'
+      });
     }
 
     console.log('SUCCESS: Access token received');
     res.json({ access_token: tokenData.access_token });
   } catch (error) {
     console.error('GitHub OAuth error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message || 'Unknown error occurred'
+    });
   }
 });
 
 // Handle OAuth callback
 app.get('/login', (req, res) => {
   const { code, error } = req.query;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   
   if (error) {
     console.log('OAuth error:', error);
-    res.redirect(`http://localhost:3000/login?error=${error}`);
+    res.redirect(`${frontendUrl}/login?error=${error}`);
     return;
   }
   
   if (code) {
     console.log('OAuth callback received, redirecting to React app with code');
-    res.redirect(`http://localhost:3000/login?code=${code}`);
+    res.redirect(`${frontendUrl}/login?code=${code}`);
     return;
   }
   
   // If no code or error, redirect to React app
-  res.redirect('http://localhost:3000/login');
+  res.redirect(`${frontendUrl}/login`);
 });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    github_client_id: GITHUB_CLIENT_ID,
+    github_client_secret_configured: GITHUB_CLIENT_SECRET !== 'your-github-client-secret'
+  });
+});
+
+// Test endpoint for OAuth configuration
+app.get('/api/test-oauth', (req, res) => {
+  res.json({
+    client_id: GITHUB_CLIENT_ID,
+    client_secret_configured: GITHUB_CLIENT_SECRET !== 'your-github-client-secret',
+    redirect_uri: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`
+  });
 });
 
 // Serve React app for all other routes (excluding API routes)
@@ -139,7 +181,8 @@ app.get('*', (req, res) => {
   }
   
   // Redirect all other routes to React app
-  res.redirect('http://localhost:3000' + req.path);
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  res.redirect(frontendUrl + req.path);
 });
 
 app.listen(PORT, () => {

@@ -50,7 +50,7 @@ const Dashboard = () => {
         const reposWithAccessData = await Promise.all(
           repos.map(async (repo) => {
             try {
-              // Check if user has admin/maintainer/collaborator access
+              // Check if user has collaborator or admin access
               const accessResponse = await fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/collaborators/${user.login}/permission`, { headers });
               let accessLevel = 'read';
               let hasCollaboratorAccess = false;
@@ -58,7 +58,7 @@ const Dashboard = () => {
               if (accessResponse.ok) {
                 const permission = await accessResponse.json();
                 accessLevel = permission.permission;
-                hasCollaboratorAccess = ['admin', 'maintain', 'write'].includes(permission.permission);
+                hasCollaboratorAccess = ['admin', 'write'].includes(permission.permission);
               }
               
               // Fetch additional metrics for each repo
@@ -110,7 +110,7 @@ const Dashboard = () => {
           })
         );
         
-        // Filter repositories with admin/maintainer/collaborator access
+        // Filter repositories with collaborator or admin access
         const collaboratorRepos = reposWithAccessData.filter(repo => repo.hasCollaboratorAccess);
         setReposWithAccess(collaboratorRepos);
         
