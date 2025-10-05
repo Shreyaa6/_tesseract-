@@ -72,7 +72,7 @@ const Login = () => {
     console.log('=== GITHUB LOGIN CLICKED ===');
     
     const clientId = 'Ov23lihegNLNB6NBAGet';
-    const redirectUri = encodeURIComponent('http://localhost:3000/login');
+    const redirectUri = encodeURIComponent('https://server-tesserect-qdey.vercel.app/login');
     const scope = 'read:user,repo';
     
     const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;

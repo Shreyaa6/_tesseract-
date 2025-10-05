@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import githubApi from '../services/githubApi';
 
 const AuthContext = createContext();
 
@@ -97,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Exchanging code for token:', code);
       
       // Exchange code for access token
-      const tokenResponse = await fetch('http://localhost:3001/api/auth/github', {
+      const tokenResponse = await fetch('https://server-tesserect-qdey.vercel.app/api/auth/github', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,25 +136,10 @@ export const AuthProvider = ({ children }) => {
       
       const { access_token } = tokenData;
 
-      // Get user info from GitHub
+      // Get user info from GitHub via our server
       console.log('Fetching user info with token:', access_token ? '***' + access_token.slice(-4) : 'NO TOKEN');
       
-      const userResponse = await fetch('https://api.github.com/user', {
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-        },
-      });
-
-      console.log('User response status:', userResponse.status);
-      console.log('User response ok:', userResponse.ok);
-
-      if (!userResponse.ok) {
-        const errorData = await userResponse.text();
-        console.error('User fetch failed:', errorData);
-        throw new Error('Failed to fetch user info');
-      }
-
-      const userData = await userResponse.json();
+      const userData = await githubApi.getUser(access_token);
       console.log('User data received:', userData);
 
       // Store user data and token
