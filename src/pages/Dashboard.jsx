@@ -338,7 +338,7 @@ const Dashboard = () => {
   };
 
   const handleRepoClick = (repo) => {
-    navigate(`/repo/${repo.owner.login}/${repo.name}`);
+    navigate(`/repository/${repo.owner.login}/${repo.name}`);
   };
 
   // Filter repositories based on search term

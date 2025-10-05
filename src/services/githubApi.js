@@ -1,5 +1,5 @@
 // GitHub API service that proxies requests through our server
-const SERVER_BASE_URL = 'https://server-tesserect-qdey.vercel.app';
+const SERVER_BASE_URL = 'http://localhost:3001';
 
 class GitHubApiService {
   constructor() {
