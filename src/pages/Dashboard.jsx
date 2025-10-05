@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout, isMaintainer } = useAuth();
+  const navigate = useNavigate();
   const [repoData, setRepoData] = useState(null);
   const [prData, setPrData] = useState(null);
   const [issuesData, setIssuesData] = useState(null);
@@ -396,6 +398,14 @@ const Dashboard = () => {
                   <div className="overview-title">
                     <h1>Repositories</h1>
                     <p>{reposWithAccess.length} repositories</p>
+                  </div>
+                  <div className="overview-actions">
+                    <button 
+                      className="commits-btn"
+                      onClick={() => navigate('/commits')}
+                    >
+                      View Commits
+                    </button>
                   </div>
                 </div>
 

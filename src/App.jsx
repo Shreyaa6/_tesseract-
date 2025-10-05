@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Commits from './pages/Commits';
 import Features from './pages/Features';
 import Ether from './pages/Ether';
 import UseCase from './pages/UseCase';
@@ -30,6 +31,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/commits" 
+            element={
+              <ProtectedRoute>
+                <Commits />
               </ProtectedRoute>
             } 
           />
