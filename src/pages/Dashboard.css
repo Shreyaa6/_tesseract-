@@ -10,7 +10,7 @@
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -19,7 +19,7 @@
 .nav-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,15 +33,15 @@
 
 .nav-logo h1 {
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
   text-shadow: 0 0 30px rgba(159, 43, 104, 0.5);
 }
 
 .logo-cube {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,8 +49,8 @@
 }
 
 .cube {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   position: relative;
   transform-style: preserve-3d;
   animation: rotate 4s linear infinite;
@@ -58,8 +58,8 @@
 
 .cube-face {
   position: absolute;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   background: linear-gradient(135deg, #9F2B68, #B83280, #8B1A5A);
   border: 1px solid #9F2B68;
   box-shadow: 
@@ -69,27 +69,27 @@
 }
 
 .cube-face.front {
-  transform: rotateY(0deg) translateZ(12.5px);
+  transform: rotateY(0deg) translateZ(10px);
 }
 
 .cube-face.back {
-  transform: rotateY(180deg) translateZ(12.5px);
+  transform: rotateY(180deg) translateZ(10px);
 }
 
 .cube-face.right {
-  transform: rotateY(90deg) translateZ(12.5px);
+  transform: rotateY(90deg) translateZ(10px);
 }
 
 .cube-face.left {
-  transform: rotateY(-90deg) translateZ(12.5px);
+  transform: rotateY(-90deg) translateZ(10px);
 }
 
 .cube-face.top {
-  transform: rotateX(90deg) translateZ(12.5px);
+  transform: rotateX(90deg) translateZ(10px);
 }
 
 .cube-face.bottom {
-  transform: rotateX(-90deg) translateZ(12.5px);
+  transform: rotateX(-90deg) translateZ(10px);
 }
 
 @keyframes rotate {
