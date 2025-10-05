@@ -193,6 +193,8 @@ const Contact = ({ onNavigate }) => {
           </div>
         </div>
       </main>
+      
+      {/* <Footer /> */}
     </div>
   );
 };

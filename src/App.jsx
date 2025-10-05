@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RepositoryDetail from './pages/RepositoryDetail';
 import PullRequestDetail from './pages/PullRequestDetail';
+import Commits from './pages/Commits';
 import Features from './pages/Features';
 import Ether from './pages/Ether';
 import UseCase from './pages/UseCase';
@@ -36,7 +37,15 @@ function App() {
             } 
           />
           <Route 
-            path="/repo/:owner/:repo" 
+            path="/commits" 
+            element={
+              <ProtectedRoute>
+                <Commits />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/repository/:owner/:repo" 
             element={
               <ProtectedRoute>
                 <RepositoryDetail />
@@ -56,7 +65,6 @@ function App() {
       </Router>
     </AuthProvider>
   );
-
 }
 
 export default App;
