@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import RepositoryDetail from './pages/RepositoryDetail';
 import Commits from './pages/Commits';
 import Features from './pages/Features';
 import Ether from './pages/Ether';
@@ -39,6 +40,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Commits />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/repository/:owner/:repo" 
+            element={
+              <ProtectedRoute>
+                <RepositoryDetail />
               </ProtectedRoute>
             } 
           />
