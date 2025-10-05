@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 
 // GitHub OAuth configuration
-const GITHUB_CLIENT_ID = process.env.REACT_APP_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || 'your-github-client-id';
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || 'your-github-client-id';
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || 'your-github-client-secret';
 
 console.log('=== Environment Variables Debug ===');
