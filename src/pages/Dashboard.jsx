@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
+import githubApi from '../services/githubApi';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -18,6 +19,9 @@ const Dashboard = () => {
   const [selectedRepo, setSelectedRepo] = useState('Shreyaa6/_tesseract-');
   const [reposWithAccess, setReposWithAccess] = useState([]);
   const [currentView, setCurrentView] = useState('overview'); // 'overview' or 'single'
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const reposPerPage = 10;
 
   useEffect(() => {
     if (user) {
@@ -37,106 +41,106 @@ const Dashboard = () => {
       const token = localStorage.getItem('tesseract_token');
       if (!token) return;
 
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      };
-
-      // Fetch user's repositories
-      const reposResponse = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', { headers });
-      if (reposResponse.ok) {
-        const repos = await reposResponse.json();
-        console.log('User repositories:', repos);
+      // Fetch user's repositories via our server
+      const repos = await githubApi.getUserRepositories(token);
+      console.log('User repositories:', repos);
         
-        // Check access level for each repository
-        const reposWithAccessData = await Promise.all(
-          repos.map(async (repo) => {
+      // Check access level for each repository
+      const reposWithAccessData = await Promise.all(
+        repos.map(async (repo) => {
+          try {
+            // Check if user has any level of access (admin, write, or read)
+            let accessLevel = 'read';
+            let hasCollaboratorAccess = false;
+            
             try {
-              // Check if user has collaborator or admin access
-              const accessResponse = await fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/collaborators/${user.login}/permission`, { headers });
-              let accessLevel = 'read';
-              let hasCollaboratorAccess = false;
-              
-              if (accessResponse.ok) {
-                const permission = await accessResponse.json();
-                accessLevel = permission.permission;
-                hasCollaboratorAccess = ['admin', 'write'].includes(permission.permission);
-              }
-              
-              // Fetch additional metrics for each repo
-              const [prsResponse, issuesResponse, contributorsResponse, commitsResponse] = await Promise.all([
-                fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/pulls?state=all&per_page=10`, { headers }),
-                fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/issues?state=all&per_page=10`, { headers }),
-                fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/contributors?per_page=5`, { headers }),
-                fetch(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/commits?since=${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()}&per_page=100`, { headers })
-              ]);
-              
-              const prs = prsResponse.ok ? await prsResponse.json() : [];
-              const issues = issuesResponse.ok ? await issuesResponse.json() : [];
-              const contributors = contributorsResponse.ok ? await contributorsResponse.json() : [];
-              const commits = commitsResponse.ok ? await commitsResponse.json() : [];
-              
-              return {
-                ...repo,
-                accessLevel,
-                hasCollaboratorAccess,
-                prCount: prs.length,
-                issuesCount: issues.length,
-                contributorsCount: contributors.length,
-                contributors: contributors.slice(0, 5),
-                commits: commits,
-                commitsCount: commits.length,
-                lastContribution: commits.length > 0 ? commits[0].commit.author.date : repo.updated_at,
-                stars: repo.stargazers_count,
-                forks: repo.forks_count,
-                updatedAt: repo.updated_at
-              };
+              const permission = await githubApi.getCollaboratorPermission(token, repo.owner.login, repo.name, user.login);
+              accessLevel = permission.permission;
+              hasCollaboratorAccess = ['admin', 'write', 'read'].includes(permission.permission);
             } catch (err) {
-              console.error(`Error fetching data for ${repo.full_name}:`, err);
-              return {
-                ...repo,
-                accessLevel: 'read',
-                hasCollaboratorAccess: false,
-                prCount: 0,
-                issuesCount: 0,
-                contributorsCount: 0,
-                contributors: [],
-                commits: [],
-                commitsCount: 0,
-                lastContribution: repo.updated_at,
-                stars: repo.stargazers_count,
-                forks: repo.forks_count,
-                updatedAt: repo.updated_at
-              };
+              console.log(`No collaborator access for ${repo.full_name}`);
             }
-          })
-        );
+            
+            // Fetch additional metrics for each repo via our server
+            const [prs, issues, contributors, commits] = await Promise.all([
+              githubApi.getPullRequests(token, repo.owner.login, repo.name, { per_page: 10 }).catch(() => []),
+              githubApi.getIssues(token, repo.owner.login, repo.name, { per_page: 10 }).catch(() => []),
+              githubApi.getContributors(token, repo.owner.login, repo.name, { per_page: 5 }).catch(() => []),
+              githubApi.getCommits(token, repo.owner.login, repo.name, { 
+                since: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                per_page: 100 
+              }).catch(() => [])
+            ]);
+            
+            return {
+              ...repo,
+              accessLevel,
+              hasCollaboratorAccess,
+              prCount: prs.length,
+              issuesCount: issues.length,
+              contributorsCount: contributors.length,
+              contributors: contributors.slice(0, 5),
+              commits: commits,
+              commitsCount: commits.length,
+              lastContribution: commits.length > 0 ? commits[0].commit.author.date : repo.updated_at,
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              updatedAt: repo.updated_at
+            };
+          } catch (err) {
+            console.error(`Error fetching data for ${repo.full_name}:`, err);
+            return {
+              ...repo,
+              accessLevel: 'read',
+              hasCollaboratorAccess: false,
+              prCount: 0,
+              issuesCount: 0,
+              contributorsCount: 0,
+              contributors: [],
+              commits: [],
+              commitsCount: 0,
+              lastContribution: repo.updated_at,
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              updatedAt: repo.updated_at
+            };
+          }
+        })
+      );
         
-        // Filter repositories with collaborator or admin access
-        const collaboratorRepos = reposWithAccessData.filter(repo => repo.hasCollaboratorAccess);
-        setReposWithAccess(collaboratorRepos);
-        
-        // Format repositories for dropdown
-        const formattedRepos = reposWithAccessData.map(repo => ({
-          value: `${repo.owner.login}/${repo.name}`,
-          label: `${repo.name}`,
-          fullName: repo.full_name,
-          owner: repo.owner.login,
-          name: repo.name,
-          private: repo.private,
-          fork: repo.fork,
-          hasCollaboratorAccess: repo.hasCollaboratorAccess
-        }));
-        
-        setAvailableRepos(formattedRepos);
-        
-        // Set default repository if none selected
-        if (formattedRepos.length > 0 && !selectedRepo) {
-          setSelectedRepo(formattedRepos[0].value);
-        }
+      // Filter repositories with any level of access (admin, write, or read)
+      const collaboratorRepos = reposWithAccessData.filter(repo => repo.hasCollaboratorAccess);
+      console.log('Total repositories found:', reposWithAccessData.length);
+      console.log('Repositories with access:', collaboratorRepos.length);
+      console.log('Repository access details:', reposWithAccessData.map(repo => ({
+        name: repo.name,
+        owner: repo.owner.login,
+        accessLevel: repo.accessLevel,
+        hasAccess: repo.hasCollaboratorAccess
+      })));
+      setReposWithAccess(collaboratorRepos);
+      
+      // Format repositories for dropdown
+      const formattedRepos = reposWithAccessData.map(repo => ({
+        value: `${repo.owner.login}/${repo.name}`,
+        label: `${repo.name}`,
+        fullName: repo.full_name,
+        owner: repo.owner.login,
+        name: repo.name,
+        private: repo.private,
+        fork: repo.fork,
+        hasCollaboratorAccess: repo.hasCollaboratorAccess
+      }));
+      
+      setAvailableRepos(formattedRepos);
+      
+      // Set default repository if none selected
+      if (formattedRepos.length > 0 && !selectedRepo) {
+        setSelectedRepo(formattedRepos[0].value);
       }
     } catch (err) {
       console.error('Error fetching user repositories:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -155,56 +159,38 @@ const Dashboard = () => {
         throw new Error('No GitHub token found');
       }
 
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      };
+      const [owner, repoName] = repoFullName.split('/');
 
-      // Fetch repository data
+      // Fetch repository data via our server
       console.log('Fetching repository data for:', repoFullName);
-      const repoResponse = await fetch(`https://api.github.com/repos/${repoFullName}`, { headers });
-      console.log('Repository response status:', repoResponse.status);
-      if (!repoResponse.ok) {
-        const errorText = await repoResponse.text();
-        console.error('Repository API error:', errorText);
-        throw new Error(`Failed to fetch repository: ${repoResponse.status}`);
-      }
-      const repo = await repoResponse.json();
+      const repo = await githubApi.getRepository(token, owner, repoName);
       console.log('Repository data:', repo);
       setRepoData(repo);
 
-      // Fetch pull requests
+      // Fetch pull requests via our server
       console.log('Fetching pull requests...');
-      const prResponse = await fetch(`https://api.github.com/repos/${repoFullName}/pulls?state=all&per_page=100`, { headers });
-      console.log('PR response status:', prResponse.status);
-      if (prResponse.ok) {
-        const prs = await prResponse.json();
+      try {
+        const prs = await githubApi.getPullRequests(token, owner, repoName, { per_page: 100 });
         console.log('Pull requests data:', prs);
         setPrData(prs);
-      } else {
-        const errorText = await prResponse.text();
-        console.error('PR API error:', errorText);
+      } catch (err) {
+        console.error('PR API error:', err);
       }
 
-      // Fetch issues
+      // Fetch issues via our server
       console.log('Fetching issues...');
-      const issuesResponse = await fetch(`https://api.github.com/repos/${repoFullName}/issues?state=all&per_page=100`, { headers });
-      console.log('Issues response status:', issuesResponse.status);
-      if (issuesResponse.ok) {
-        const issues = await issuesResponse.json();
+      try {
+        const issues = await githubApi.getIssues(token, owner, repoName, { per_page: 100 });
         console.log('Issues data:', issues);
         setIssuesData(issues);
-      } else {
-        const errorText = await issuesResponse.text();
-        console.error('Issues API error:', errorText);
+      } catch (err) {
+        console.error('Issues API error:', err);
       }
 
-      // Fetch contributors
+      // Fetch contributors via our server
       console.log('Fetching contributors...');
-      const contributorsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/contributors`, { headers });
-      console.log('Contributors response status:', contributorsResponse.status);
-      if (contributorsResponse.ok) {
-        const contributors = await contributorsResponse.json();
+      try {
+        const contributors = await githubApi.getContributors(token, owner, repoName);
         console.log('Contributors data:', contributors);
         console.log('Contributors count:', contributors.length);
         console.log('Contributors details:', contributors.map(c => ({
@@ -213,15 +199,13 @@ const Dashboard = () => {
           avatar_url: c.avatar_url
         })));
         setContributorsData(contributors);
-      } else {
-        const errorText = await contributorsResponse.text();
-        console.error('Contributors API error:', errorText);
+      } catch (err) {
+        console.error('Contributors API error:', err);
         
         // Fallback: try to get contributors from commits
         console.log('Trying fallback: getting contributors from commits...');
-        const commitsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/commits?per_page=100`, { headers });
-        if (commitsResponse.ok) {
-          const commits = await commitsResponse.json();
+        try {
+          const commits = await githubApi.getCommits(token, owner, repoName, { per_page: 100 });
           console.log('Commits for contributors:', commits);
           
           // Extract unique contributors from commits
@@ -243,21 +227,20 @@ const Dashboard = () => {
           const contributorsFromCommits = Array.from(contributorMap.values());
           console.log('Contributors from commits:', contributorsFromCommits);
           setContributorsData(contributorsFromCommits);
+        } catch (commitErr) {
+          console.error('Fallback contributors error:', commitErr);
         }
       }
 
-      // Fetch recent activity (commits) - only if we didn't already fetch them for contributors
+      // Fetch recent activity (commits) via our server
       if (!recentActivity) {
         console.log('Fetching recent commits...');
-        const commitsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/commits?per_page=10`, { headers });
-        console.log('Commits response status:', commitsResponse.status);
-        if (commitsResponse.ok) {
-          const commits = await commitsResponse.json();
+        try {
+          const commits = await githubApi.getCommits(token, owner, repoName, { per_page: 10 });
           console.log('Commits data:', commits);
           setRecentActivity(commits);
-        } else {
-          const errorText = await commitsResponse.text();
-          console.error('Commits API error:', errorText);
+        } catch (err) {
+          console.error('Commits API error:', err);
         }
       }
 
@@ -354,6 +337,34 @@ const Dashboard = () => {
     return pathData;
   };
 
+  const handleRepoClick = (repo) => {
+    navigate(`/repo/${repo.owner.login}/${repo.name}`);
+  };
+
+  // Filter repositories based on search term
+  const filteredRepos = reposWithAccess.filter(repo => 
+    repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    repo.owner.login.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
+  const startIndex = (currentPage - 1) * reposPerPage;
+  const endIndex = startIndex + reposPerPage;
+  const currentRepos = filteredRepos.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
   return (
     <div className="dashboard-container">
       <nav className="dashboard-nav">
@@ -397,15 +408,21 @@ const Dashboard = () => {
                 <div className="overview-header">
                   <div className="overview-title">
                     <h1>Repositories</h1>
-                    <p>{reposWithAccess.length} repositories</p>
+                    <p>{filteredRepos.length} repositories {searchTerm && `(filtered from ${reposWithAccess.length})`}</p>
                   </div>
-                  <div className="overview-actions">
-                    <button 
-                      className="commits-btn"
-                      onClick={() => navigate('/commits')}
-                    >
-                      View Commits
-                    </button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="search-container">
+                  <div className="search-bar">
+                    <input
+                      type="text"
+                      placeholder="Search repositories by name or owner..."
+                      value={searchTerm}
+                      onChange={handleSearch}
+                      className="search-input"
+                    />
+                    <div className="search-icon">🔍</div>
                   </div>
                 </div>
 
@@ -419,8 +436,8 @@ const Dashboard = () => {
                     <div className="table-cell">LAST 30 DAYS</div>
                   </div>
 
-                  {reposWithAccess.map((repo, index) => (
-                    <div key={repo.id} className="table-row" onClick={() => navigate(`/repository/${repo.owner.login}/${repo.name}`)}>
+                  {currentRepos.map((repo, index) => (
+                    <div key={repo.id} className="table-row" onClick={() => handleRepoClick(repo)}>
                       <div className="table-cell">
                         <div className="repo-cell">
                           <div className="repo-info-cell">
@@ -506,6 +523,58 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="pagination-container">
+                    <div className="pagination">
+                      <button 
+                        className="pagination-btn"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        ← Previous
+                      </button>
+                      
+                      <div className="pagination-info">
+                        Page {currentPage} of {totalPages}
+                      </div>
+                      
+                      <div className="pagination-numbers">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              className={`pagination-number ${currentPage === pageNum ? 'active' : ''}`}
+                              onClick={() => handlePageChange(pageNum)}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button 
+                        className="pagination-btn"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

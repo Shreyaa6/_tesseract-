@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import SkeletonLoader from '../components/SkeletonLoader';
+import githubApi from '../services/githubApi';
 import './RepositoryDetail.css';
 
 const RepositoryDetail = () => {
@@ -16,25 +17,33 @@ const RepositoryDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [activePrFilter, setActivePrFilter] = useState('all');
   
-  // Analytics data
+  // Repository switching states
+  const [availableRepos, setAvailableRepos] = useState([]);
+  const [repoSearchQuery, setRepoSearchQuery] = useState('');
+  const [showRepoSearch, setShowRepoSearch] = useState(false);
+  
+  // PR filtering states
+  const [prFilter, setPrFilter] = useState('all');
+  const [prSearchQuery, setPrSearchQuery] = useState('');
+  
+  // Statistics states
+  const [repoStats, setRepoStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
   const [commitActivity, setCommitActivity] = useState([]);
   const [languageStats, setLanguageStats] = useState([]);
-  const [contributorActivity, setContributorActivity] = useState([]);
-  const [prTrends, setPrTrends] = useState([]);
-  const [issueTrends, setIssueTrends] = useState([]);
-  const [repositoryHealth, setRepositoryHealth] = useState({});
-  
-  // Commit modal state
-  const [selectedCommit, setSelectedCommit] = useState(null);
-  const [commitFiles, setCommitFiles] = useState([]);
-  const [showCommitModal, setShowCommitModal] = useState(false);
-  const [loadingCommitDetails, setLoadingCommitDetails] = useState(false);
+  const [releaseStats, setReleaseStats] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAvailableRepositories();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (owner && repo) {
       fetchRepositoryDetails();
+      fetchRepositoryStatistics();
     }
   }, [owner, repo]);
 
@@ -48,51 +57,41 @@ const RepositoryDetail = () => {
         throw new Error('No GitHub token found');
       }
 
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      };
-
-      const repoFullName = `${owner}/${repo}`;
-      
-      // Fetch repository details
-      const repoResponse = await fetch(`https://api.github.com/repos/${repoFullName}`, { headers });
-      if (!repoResponse.ok) {
-        throw new Error(`Failed to fetch repository: ${repoResponse.status}`);
-      }
-      const repoData = await repoResponse.json();
+      // Fetch repository details via our server
+      const repoData = await githubApi.getRepository(token, owner, repo);
       setRepository(repoData);
 
-      // Fetch pull requests
-      const prResponse = await fetch(`https://api.github.com/repos/${repoFullName}/pulls?state=all&per_page=20`, { headers });
-      if (prResponse.ok) {
-        const prs = await prResponse.json();
+      // Fetch pull requests via our server
+      try {
+        const prs = await githubApi.getPullRequests(token, owner, repo, { per_page: 20 });
         setPullRequests(prs);
+      } catch (err) {
+        console.error('Failed to fetch pull requests:', err);
       }
 
-      // Fetch issues
-      const issuesResponse = await fetch(`https://api.github.com/repos/${repoFullName}/issues?state=all&per_page=20`, { headers });
-      if (issuesResponse.ok) {
-        const issuesData = await issuesResponse.json();
+      // Fetch issues via our server
+      try {
+        const issuesData = await githubApi.getIssues(token, owner, repo, { per_page: 20 });
         setIssues(issuesData);
+      } catch (err) {
+        console.error('Failed to fetch issues:', err);
       }
 
-      // Fetch contributors
-      const contributorsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/contributors?per_page=10`, { headers });
-      if (contributorsResponse.ok) {
-        const contributorsData = await contributorsResponse.json();
+      // Fetch contributors via our server
+      try {
+        const contributorsData = await githubApi.getContributors(token, owner, repo, { per_page: 10 });
         setContributors(contributorsData);
+      } catch (err) {
+        console.error('Failed to fetch contributors:', err);
       }
 
-      // Fetch recent commits
-      const commitsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/commits?per_page=20`, { headers });
-      if (commitsResponse.ok) {
-        const commitsData = await commitsResponse.json();
+      // Fetch recent commits via our server
+      try {
+        const commitsData = await githubApi.getCommits(token, owner, repo, { per_page: 20 });
         setCommits(commitsData);
+      } catch (err) {
+        console.error('Failed to fetch commits:', err);
       }
-
-      // Fetch analytics data
-      await fetchAnalyticsData(repoFullName, headers);
 
     } catch (err) {
       console.error('Error fetching repository details:', err);
@@ -102,371 +101,126 @@ const RepositoryDetail = () => {
     }
   };
 
-  const fetchAnalyticsData = async (repoFullName, headers) => {
+  const fetchAvailableRepositories = async () => {
     try {
-      // Fetch commit activity (last 52 weeks)
-      const commitActivityResponse = await fetch(`https://api.github.com/repos/${repoFullName}/stats/commit_activity`, { headers });
-      if (commitActivityResponse.ok) {
-        const activityData = await commitActivityResponse.json();
-        setCommitActivity(activityData);
+      const token = localStorage.getItem('tesseract_token');
+      if (!token) return;
+
+      const repos = await githubApi.getUserRepositories(token);
+      
+      const reposWithAccess = await Promise.all(
+        repos.map(async (repo) => {
+          try {
+            const permission = await githubApi.getCollaboratorPermission(token, repo.owner.login, repo.name, user.login);
+            return {
+              ...repo,
+              hasCollaboratorAccess: ['admin', 'write'].includes(permission.permission)
+            };
+          } catch (err) {
+            return { ...repo, hasCollaboratorAccess: false };
+          }
+        })
+      );
+      
+      const collaboratorRepos = reposWithAccess.filter(repo => repo.hasCollaboratorAccess);
+      setAvailableRepos(collaboratorRepos);
+    } catch (err) {
+      console.error('Error fetching available repositories:', err);
+    }
+  };
+
+  const fetchRepositoryStatistics = async () => {
+    try {
+      setLoadingStats(true);
+      const token = localStorage.getItem('tesseract_token');
+      
+      if (!token) {
+        throw new Error('No GitHub token found');
       }
 
-      // Fetch language statistics
-      const languagesResponse = await fetch(`https://api.github.com/repos/${repoFullName}/languages`, { headers });
-      if (languagesResponse.ok) {
-        const languagesData = await languagesResponse.json();
-        const languageArray = Object.entries(languagesData).map(([name, bytes]) => ({
-          name,
+      // Fetch commit activity for the last year via our server
+      try {
+        const activityData = await githubApi.getCommitActivity(token, owner, repo);
+        setCommitActivity(activityData.slice(-12)); // Last 12 weeks
+      } catch (err) {
+        console.error('Failed to fetch commit activity:', err);
+      }
+
+      // Fetch language statistics via our server
+      try {
+        const languagesData = await githubApi.getLanguages(token, owner, repo);
+        const totalBytes = Object.values(languagesData).reduce((sum, bytes) => sum + bytes, 0);
+        const languageStatsData = Object.entries(languagesData).map(([language, bytes]) => ({
+          language,
           bytes,
-          percentage: ((bytes / Object.values(languagesData).reduce((a, b) => a + b, 0)) * 100).toFixed(1)
-        }));
-        setLanguageStats(languageArray);
+          percentage: ((bytes / totalBytes) * 100).toFixed(1)
+        })).sort((a, b) => b.bytes - a.bytes);
+        setLanguageStats(languageStatsData);
+      } catch (err) {
+        console.error('Failed to fetch languages:', err);
       }
 
-      // Fetch contributor activity
-      const contributorStatsResponse = await fetch(`https://api.github.com/repos/${repoFullName}/stats/contributors`, { headers });
-      if (contributorStatsResponse.ok) {
-        const contributorStatsData = await contributorStatsResponse.json();
-        setContributorActivity(contributorStatsData);
+      // Fetch releases via our server
+      try {
+        const releasesData = await githubApi.getReleases(token, owner, repo, { per_page: 10 });
+        setReleaseStats(releasesData);
+      } catch (err) {
+        console.error('Failed to fetch releases:', err);
       }
 
-      // Calculate repository health metrics
-      const healthMetrics = calculateRepositoryHealth();
-      setRepositoryHealth(healthMetrics);
-
-      // Calculate PR and Issue trends
-      const prTrendsData = calculateTrends(pullRequests, 'created_at');
-      const issueTrendsData = calculateTrends(issues, 'created_at');
-      setPrTrends(prTrendsData);
-      setIssueTrends(issueTrendsData);
-
-    } catch (err) {
-      console.error('Error fetching analytics data:', err);
-    }
-  };
-
-  const calculateRepositoryHealth = () => {
-    const now = new Date();
-    const lastCommit = commits[0] ? new Date(commits[0].commit.author.date) : null;
-    const daysSinceLastCommit = lastCommit ? Math.floor((now - lastCommit) / (1000 * 60 * 60 * 24)) : 999;
-    
-    const openIssues = issues.filter(issue => issue.state === 'open').length;
-    const closedIssues = issues.filter(issue => issue.state === 'closed').length;
-    const openPRs = pullRequests.filter(pr => pr.state === 'open').length;
-    const mergedPRs = pullRequests.filter(pr => pr.state === 'closed' && pr.merged_at).length;
-    
-    const issueResolutionRate = closedIssues / (openIssues + closedIssues) || 0;
-    const prMergeRate = mergedPRs / (openPRs + mergedPRs) || 0;
-    
-    let healthScore = 100;
-    if (daysSinceLastCommit > 30) healthScore -= 30;
-    if (daysSinceLastCommit > 90) healthScore -= 40;
-    if (issueResolutionRate < 0.5) healthScore -= 20;
-    if (prMergeRate < 0.3) healthScore -= 10;
-    
-    return {
-      score: Math.max(0, healthScore),
-      lastCommitDays: daysSinceLastCommit,
-      issueResolutionRate: (issueResolutionRate * 100).toFixed(1),
-      prMergeRate: (prMergeRate * 100).toFixed(1),
-      totalContributors: contributors.length,
-      activeContributors: contributors.filter(c => c.contributions > 0).length
-    };
-  };
-
-  const calculateTrends = (data, dateField) => {
-    const last30Days = data.filter(item => {
-      const itemDate = new Date(item[dateField]);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return itemDate >= thirtyDaysAgo;
-    });
-    
-    return {
-      total: data.length,
-      last30Days: last30Days.length,
-      trend: last30Days.length > data.length * 0.3 ? 'increasing' : 'stable'
-    };
-  };
-
-  const fetchCommitDetails = async (commitSha) => {
-    try {
-      setLoadingCommitDetails(true);
-      const token = localStorage.getItem('tesseract_token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
+      // Calculate comprehensive statistics
+      const stats = {
+        totalCommits: commits.length,
+        totalIssues: issues.length,
+        totalPullRequests: pullRequests.length,
+        totalContributors: contributors.length,
+        avgCommitsPerWeek: commitActivity.reduce((sum, week) => sum + week.total, 0) / Math.max(commitActivity.length, 1),
+        avgIssuesPerWeek: issues.length / 52, // Rough estimate
+        avgPRsPerWeek: pullRequests.length / 52,
+        repositoryAge: Math.floor((new Date() - new Date(repository?.created_at)) / (1000 * 60 * 60 * 24)),
+        lastActivity: repository?.updated_at,
+        codeFrequency: commitActivity,
+        languageDistribution: languageStats,
+        releaseCount: releaseStats.length,
+        latestRelease: releaseStats[0]?.published_at || null
       };
+
+      setRepoStats(stats);
       
-      const repoFullName = `${owner}/${repo}`;
-      const response = await fetch(`https://api.github.com/repos/${repoFullName}/commits/${commitSha}`, { headers });
-      
-      if (response.ok) {
-        const commitData = await response.json();
-        setSelectedCommit(commitData);
-        setCommitFiles(commitData.files || []);
-        setShowCommitModal(true);
-      }
     } catch (err) {
-      console.error('Error fetching commit details:', err);
+      console.error('Error fetching repository statistics:', err);
     } finally {
-      setLoadingCommitDetails(false);
+      setLoadingStats(false);
     }
   };
 
-  const closeCommitModal = () => {
-    setShowCommitModal(false);
-    setSelectedCommit(null);
-    setCommitFiles([]);
+  const handleRepoSwitch = (repoFullName) => {
+    const [newOwner, newRepo] = repoFullName.split('/');
+    navigate(`/repository/${newOwner}/${newRepo}`);
+    setShowRepoSearch(false);
+    setRepoSearchQuery('');
   };
 
-  const handlePrAction = async (pr, action) => {
-    try {
-      const token = localStorage.getItem('tesseract_token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      };
-      
-      const repoFullName = `${owner}/${repo}`;
-      
-      switch (action) {
-        case 'approve':
-          // Create a review with approval
-          await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/reviews`, {
-            method: 'POST',
-            headers: {
-              ...headers,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              event: 'APPROVE',
-              body: 'Looks good to me! ✅'
-            })
-          });
-          alert('Pull request approved!');
-          break;
-          
-        case 'comment':
-          const comment = prompt('Enter your review comment:');
-          if (comment) {
-            await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/reviews`, {
-              method: 'POST',
-              headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                event: 'COMMENT',
-                body: comment
-              })
-            });
-            alert('Comment added!');
-          }
-          break;
-          
-        case 'reject':
-          const rejectComment = prompt('Enter rejection reason:');
-          if (rejectComment) {
-            await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/reviews`, {
-              method: 'POST',
-              headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                event: 'REQUEST_CHANGES',
-                body: rejectComment
-              })
-            });
-            alert('Pull request rejected with feedback!');
-          }
-          break;
-          
-        case 'merge':
-          // Merge the pull request
-          await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/merge`, {
-            method: 'PUT',
-            headers: {
-              ...headers,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              commit_title: `Merge pull request #${pr.number} from ${pr.head.ref}`,
-              commit_message: pr.title,
-              merge_method: 'merge'
-            })
-          });
-          alert('Pull request merged!');
-          break;
-          
-        case 'close':
-          // Close the pull request
-          await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}`, {
-            method: 'PATCH',
-            headers: {
-              ...headers,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              state: 'closed'
-            })
-          });
-          alert('Pull request closed!');
-          break;
-          
-        default:
-          break;
-      }
-      
-      // Refresh the PR data
-      fetchRepositoryDetails();
-      
-    } catch (err) {
-      console.error('Error performing PR action:', err);
-      alert('Error performing action. Please try again.');
-    }
-  };
+  const filteredRepos = availableRepos.filter(repo => 
+    repo.name.toLowerCase().includes(repoSearchQuery.toLowerCase()) ||
+    repo.full_name.toLowerCase().includes(repoSearchQuery.toLowerCase())
+  );
 
-  const handleBulkAction = async (action) => {
-    const openPRs = pullRequests.filter(pr => pr.state === 'open');
-    if (openPRs.length === 0) {
-      alert('No open pull requests to perform bulk action on.');
-      return;
-    }
-
-    const confirmMessage = `Are you sure you want to ${action} ${openPRs.length} open pull request(s)?`;
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('tesseract_token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      };
-      
-      const repoFullName = `${owner}/${repo}`;
-      
-      for (const pr of openPRs) {
-        switch (action) {
-          case 'approve':
-            await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/reviews`, {
-              method: 'POST',
-              headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                event: 'APPROVE',
-                body: 'Bulk approved ✅'
-              })
-            });
-            break;
-            
-          case 'comment':
-            await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}/reviews`, {
-              method: 'POST',
-              headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                event: 'COMMENT',
-                body: 'Bulk review comment'
-              })
-            });
-            break;
-            
-          case 'close':
-            await fetch(`https://api.github.com/repos/${repoFullName}/pulls/${pr.number}`, {
-              method: 'PATCH',
-              headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                state: 'closed'
-              })
-            });
-            break;
-        }
-      }
-      
-      alert(`Bulk ${action} completed on ${openPRs.length} pull request(s)!`);
-      fetchRepositoryDetails();
-      
-    } catch (err) {
-      console.error('Error performing bulk action:', err);
-      alert('Error performing bulk action. Please try again.');
-    }
-  };
-
-  const getFileIcon = (filename) => {
-    const extension = filename.split('.').pop()?.toLowerCase();
-    const iconMap = {
-      'js': '📄',
-      'jsx': '⚛️',
-      'ts': '📘',
-      'tsx': '⚛️',
-      'css': '🎨',
-      'html': '🌐',
-      'json': '📋',
-      'md': '📝',
-      'py': '🐍',
-      'java': '☕',
-      'cpp': '⚙️',
-      'c': '⚙️',
-      'php': '🐘',
-      'rb': '💎',
-      'go': '🐹',
-      'rs': '🦀',
-      'sql': '🗄️',
-      'xml': '📄',
-      'yml': '⚙️',
-      'yaml': '⚙️',
-      'sh': '🐚',
-      'bat': '🖥️',
-      'ps1': '🖥️',
-      'dockerfile': '🐳',
-      'gitignore': '🚫',
-      'env': '🔧',
-      'lock': '🔒',
-      'txt': '📄',
-      'log': '📋',
-      'svg': '🎨',
-      'png': '🖼️',
-      'jpg': '🖼️',
-      'jpeg': '🖼️',
-      'gif': '🖼️',
-      'ico': '🖼️',
-      'pdf': '📄',
-      'zip': '📦',
-      'tar': '📦',
-      'gz': '📦'
-    };
-    return iconMap[extension] || '📄';
-  };
-
-  const getFileStatusIcon = (status) => {
-    const statusMap = {
-      'added': '➕',
-      'modified': '✏️',
-      'removed': '➖',
-      'renamed': '🔄',
-      'copied': '📋'
-    };
-    return statusMap[status] || '📄';
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
+  // Filter pull requests based on selected filter and search query
+  const filteredPullRequests = pullRequests.filter(pr => {
+    const matchesFilter = prFilter === 'all' || 
+      (prFilter === 'open' && pr.state === 'open') ||
+      (prFilter === 'closed' && pr.state === 'closed' && !pr.merged_at) ||
+      (prFilter === 'merged' && pr.state === 'closed' && pr.merged_at) ||
+      (prFilter === 'draft' && pr.draft);
+    
+    const matchesSearch = prSearchQuery === '' || 
+      pr.title.toLowerCase().includes(prSearchQuery.toLowerCase()) ||
+      pr.user.login.toLowerCase().includes(prSearchQuery.toLowerCase()) ||
+      pr.labels.some(label => label.name.toLowerCase().includes(prSearchQuery.toLowerCase()));
+    
+    return matchesFilter && matchesSearch;
+  });
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -557,6 +311,59 @@ const RepositoryDetail = () => {
 
       <main className="repository-main">
         <div className="repository-content">
+          {/* Repository Search Bar */}
+          <div className="repo-search-section">
+            <div className="repo-search-container">
+              <div className="search-input-wrapper">
+                <input
+                  type="text"
+                  placeholder="Search repositories..."
+                  value={repoSearchQuery}
+                  onChange={(e) => setRepoSearchQuery(e.target.value)}
+                  onFocus={() => setShowRepoSearch(true)}
+                  className="repo-search-input"
+                />
+                <div className="search-icon">🔍</div>
+              </div>
+              
+              {showRepoSearch && (
+                <div className="repo-search-dropdown">
+                  <div className="dropdown-header">
+                    <span>Switch Repository</span>
+                    <button 
+                      className="close-dropdown"
+                      onClick={() => setShowRepoSearch(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="repo-list">
+                    {filteredRepos.length > 0 ? (
+                      filteredRepos.map((repo) => (
+                        <div 
+                          key={repo.id} 
+                          className="repo-item"
+                          onClick={() => handleRepoSwitch(repo.full_name)}
+                        >
+                          <div className="repo-item-info">
+                            <div className="repo-item-name">{repo.name}</div>
+                            <div className="repo-item-owner">@{repo.owner.login}</div>
+                          </div>
+                          <div className="repo-item-stats">
+                            <span className="repo-stars">⭐ {repo.stargazers_count}</span>
+                            <span className="repo-language">{repo.language || 'Unknown'}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-repos">No repositories found</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Repository Header */}
           <div className="repository-header">
             <div className="repo-header-info">
@@ -582,6 +389,55 @@ const RepositoryDetail = () => {
                   <span className="stat-label">Watchers</span>
                 </div>
               </div>
+            </div>
+            
+            {/* Key Metrics Row */}
+            {repoStats && (
+              <div className="key-metrics-row">
+                <div className="metric-item">
+                  <div className="metric-icon">📊</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{repoStats.totalCommits}</span>
+                    <span className="metric-label">Commits</span>
+                  </div>
+                </div>
+                <div className="metric-item">
+                  <div className="metric-icon">👥</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{repoStats.totalContributors}</span>
+                    <span className="metric-label">Contributors</span>
+                  </div>
+                </div>
+                <div className="metric-item">
+                  <div className="metric-icon">🔀</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{pullRequests.filter(pr => pr.state === 'open').length}</span>
+                    <span className="metric-label">Open PRs</span>
+                  </div>
+                </div>
+                <div className="metric-item">
+                  <div className="metric-icon">🐛</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{issues.filter(issue => issue.state === 'open').length}</span>
+                    <span className="metric-label">Open Issues</span>
+                  </div>
+                </div>
+                <div className="metric-item">
+                  <div className="metric-icon">🚀</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{repoStats.releaseCount}</span>
+                    <span className="metric-label">Releases</span>
+                  </div>
+                </div>
+                <div className="metric-item">
+                  <div className="metric-icon">📅</div>
+                  <div className="metric-content">
+                    <span className="metric-number">{Math.floor(repoStats.repositoryAge / 365)}y</span>
+                    <span className="metric-label">Age</span>
+                  </div>
+                </div>
+              </div>
+            )}
             </div>
             
             {repository.description && (
@@ -635,12 +491,6 @@ const RepositoryDetail = () => {
               >
                 Recent Commits ({commits.length})
               </button>
-              <button 
-                className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-                onClick={() => setActiveTab('analytics')}
-              >
-                Analytics & Insights
-              </button>
             </div>
           </div>
 
@@ -648,37 +498,91 @@ const RepositoryDetail = () => {
           <div className="tab-content">
             {activeTab === 'overview' && (
               <div className="overview-tab">
-                {/* Repository Health Dashboard */}
-                <div className="health-dashboard">
-                  <h3>Repository Health</h3>
-                  <div className="health-metrics">
-                    <div className="health-score">
-                      <div className="score-circle">
-                        <span className="score-number">{repositoryHealth.score || 0}</span>
-                        <span className="score-label">Health Score</span>
-                      </div>
-                    </div>
-                    <div className="health-stats">
-                      <div className="health-stat">
-                        <span className="stat-value">{repositoryHealth.lastCommitDays || 0}</span>
-                        <span className="stat-label">Days since last commit</span>
-                      </div>
-                      <div className="health-stat">
-                        <span className="stat-value">{repositoryHealth.issueResolutionRate || 0}%</span>
-                        <span className="stat-label">Issue resolution rate</span>
-                      </div>
-                      <div className="health-stat">
-                        <span className="stat-value">{repositoryHealth.prMergeRate || 0}%</span>
-                        <span className="stat-label">PR merge rate</span>
-                      </div>
-                      <div className="health-stat">
-                        <span className="stat-value">{repositoryHealth.activeContributors || 0}</span>
-                        <span className="stat-label">Active contributors</span>
-                      </div>
-                    </div>
-                  </div>
+                {/* Repository Overview */}
+                <div className="overview-section">
+                  <h3 className="section-title">Repository Overview</h3>
+                  <p className="section-description">
+                    Last updated: {getTimeAgo(repository.updated_at)} • 
+                    {repoStats && ` ${repoStats.avgCommitsPerWeek.toFixed(1)} commits/week avg`}
+                  </p>
                 </div>
 
+                {/* Commit Activity Chart */}
+                {commitActivity.length > 0 && (
+                  <div className="activity-chart-section">
+                    <div className="chart-header">
+                      <h3>Commit Activity (Last 12 Weeks)</h3>
+                      <div className="chart-legend">
+                        <div className="legend-item">
+                          <div className="legend-color high"></div>
+                          <span>High Activity</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-color medium"></div>
+                          <span>Medium Activity</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-color low"></div>
+                          <span>Low Activity</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="activity-chart">
+                      {commitActivity.map((week, index) => {
+                        const maxCommits = Math.max(...commitActivity.map(w => w.total));
+                        const intensity = week.total / maxCommits;
+                        return (
+                          <div key={index} className="week-column">
+                            <div className="week-label">W{index + 1}</div>
+                            <div className="week-bars">
+                              {week.days.map((day, dayIndex) => {
+                                const dayIntensity = day / Math.max(...week.days);
+                                return (
+                                  <div 
+                                    key={dayIndex} 
+                                    className={`day-bar ${intensity > 0.7 ? 'high' : intensity > 0.3 ? 'medium' : 'low'}`}
+                                    style={{ opacity: dayIntensity }}
+                                    title={`${day} commits`}
+                                  ></div>
+                                );
+                              })}
+                            </div>
+                            <div className="week-total">{week.total}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Language Distribution */}
+                {languageStats.length > 0 && (
+                  <div className="language-section">
+                    <h3>Language Distribution</h3>
+                    <div className="language-chart">
+                      {languageStats.slice(0, 5).map((lang, index) => (
+                        <div key={lang.language} className="language-item">
+                          <div className="language-info">
+                            <span className="language-name">{lang.language}</span>
+                            <span className="language-percentage">{lang.percentage}%</span>
+                          </div>
+                          <div className="language-bar">
+                            <div 
+                              className="language-fill"
+                              style={{ 
+                                width: `${lang.percentage}%`,
+                                backgroundColor: `hsl(${index * 60}, 70%, 50%)`
+                              }}
+                            ></div>
+                          </div>
+                          <div className="language-bytes">{Math.round(lang.bytes / 1024)} KB</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contributors and Repository Info */}
                 <div className="overview-grid">
                   <div className="overview-card">
                     <h3>Top Contributors</h3>
@@ -693,17 +597,10 @@ const RepositoryDetail = () => {
                           />
                           <div className="contributor-info">
                             <span className="contributor-name">{contributor.login}</span>
-                            <div className="contributor-stats">
-                              <span className="contributor-commits">{contributor.contributions} commits</span>
-                              <div className="contribution-bar">
-                                <div 
-                                  className="contribution-fill" 
-                                  style={{ 
-                                    width: `${(contributor.contributions / contributors[0]?.contributions) * 100}%` 
-                                  }}
-                                ></div>
-                              </div>
-                            </div>
+                            <span className="contributor-commits">{contributor.contributions} commits</span>
+                          </div>
+                          <div className="contributor-percentage">
+                            {((contributor.contributions / contributors.reduce((sum, c) => sum + c.contributions, 0)) * 100).toFixed(1)}%
                           </div>
                         </div>
                       ))}
@@ -711,27 +608,7 @@ const RepositoryDetail = () => {
                   </div>
 
                   <div className="overview-card">
-                    <h3>Language Distribution</h3>
-                    <div className="language-stats">
-                      {languageStats.slice(0, 5).map((lang, index) => (
-                        <div key={lang.name} className="language-item">
-                          <div className="language-info">
-                            <span className="language-name">{lang.name}</span>
-                            <span className="language-percentage">{lang.percentage}%</span>
-                          </div>
-                          <div className="language-bar">
-                            <div 
-                              className="language-fill" 
-                              style={{ width: `${lang.percentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="overview-card">
-                    <h3>Repository Info</h3>
+                    <h3>Repository Details</h3>
                     <div className="info-list">
                       <div className="info-item">
                         <span className="info-label">Created:</span>
@@ -749,195 +626,37 @@ const RepositoryDetail = () => {
                         <span className="info-label">Default Branch:</span>
                         <span className="info-value">{repository.default_branch}</span>
                       </div>
+                      <div className="info-item">
+                        <span className="info-label">License:</span>
+                        <span className="info-value">{repository.license?.name || 'No License'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Archived:</span>
+                        <span className="info-value">{repository.archived ? 'Yes' : 'No'}</span>
+                      </div>
                     </div>
                   </div>
 
                   <div className="overview-card">
-                    <h3>Activity Trends</h3>
-                    <div className="trends-stats">
-                      <div className="trend-item">
-                        <span className="trend-label">Pull Requests</span>
-                        <div className="trend-info">
-                          <span className="trend-total">{prTrends.total || 0}</span>
-                          <span className={`trend-indicator ${prTrends.trend || 'stable'}`}>
-                            {prTrends.trend === 'increasing' ? '↗' : '→'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="trend-item">
-                        <span className="trend-label">Issues</span>
-                        <div className="trend-info">
-                          <span className="trend-total">{issueTrends.total || 0}</span>
-                          <span className={`trend-indicator ${issueTrends.trend || 'stable'}`}>
-                            {issueTrends.trend === 'increasing' ? '↗' : '→'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="trend-item">
-                        <span className="trend-label">Last 30 Days</span>
-                        <div className="trend-info">
-                          <span className="trend-total">
-                            {(prTrends.last30Days || 0) + (issueTrends.last30Days || 0)}
-                          </span>
-                          <span className="trend-indicator stable">→</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'analytics' && (
-              <div className="analytics-tab">
-                <div className="analytics-grid">
-                  {/* Commit Activity Chart */}
-                  <div className="analytics-card large">
-                    <h3>Commit Activity (Last 12 Weeks)</h3>
-                    <div className="commit-chart">
-                      {commitActivity.slice(-12).map((week, index) => {
-                        const maxCommits = Math.max(...commitActivity.map(w => w.total));
-                        const height = (week.total / maxCommits) * 100;
-                        return (
-                          <div key={index} className="commit-bar">
-                            <div 
-                              className="commit-bar-fill" 
-                              style={{ height: `${height}%` }}
-                              title={`${week.total} commits`}
-                            ></div>
-                            <span className="commit-week">W{index + 1}</span>
+                    <h3>Recent Releases</h3>
+                    <div className="releases-list">
+                      {releaseStats.slice(0, 3).map((release) => (
+                        <div key={release.id} className="release-item">
+                          <div className="release-header">
+                            <span className="release-tag">{release.tag_name}</span>
+                            <span className="release-date">{getTimeAgo(release.published_at)}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Contributor Activity */}
-                  <div className="analytics-card">
-                    <h3>Contributor Activity</h3>
-                    <div className="contributor-chart">
-                      {contributorActivity.slice(0, 8).map((contributor, index) => {
-                        const totalCommits = contributor.weeks.reduce((sum, week) => sum + week.c, 0);
-                        const maxCommits = Math.max(...contributorActivity.map(c => 
-                          c.weeks.reduce((sum, week) => sum + week.c, 0)
-                        ));
-                        const width = (totalCommits / maxCommits) * 100;
-                        return (
-                          <div key={contributor.author.id} className="contributor-bar">
-                            <div className="contributor-info">
-                              <img 
-                                src={contributor.author.avatar_url} 
-                                alt={contributor.author.login}
-                                className="contributor-mini-avatar"
-                              />
-                              <span className="contributor-mini-name">{contributor.author.login}</span>
+                          <div className="release-title">{release.name || release.tag_name}</div>
+                          {release.body && (
+                            <div className="release-description">
+                              {release.body.substring(0, 100)}...
                             </div>
-                            <div className="contributor-bar-container">
-                              <div 
-                                className="contributor-bar-fill" 
-                                style={{ width: `${width}%` }}
-                              ></div>
-                              <span className="contributor-count">{totalCommits}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Language Distribution Chart */}
-                  <div className="analytics-card">
-                    <h3>Language Distribution</h3>
-                    <div className="language-chart">
-                      {languageStats.map((lang, index) => (
-                        <div key={lang.name} className="language-chart-item">
-                          <div className="language-chart-info">
-                            <div 
-                              className="language-color" 
-                              style={{ 
-                                backgroundColor: `hsl(${index * 60}, 70%, 50%)` 
-                              }}
-                            ></div>
-                            <span className="language-chart-name">{lang.name}</span>
-                            <span className="language-chart-percentage">{lang.percentage}%</span>
-                          </div>
-                          <div className="language-chart-bar">
-                            <div 
-                              className="language-chart-fill" 
-                              style={{ 
-                                width: `${lang.percentage}%`,
-                                backgroundColor: `hsl(${index * 60}, 70%, 50%)`
-                              }}
-                            ></div>
-                          </div>
+                          )}
                         </div>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* Repository Metrics */}
-                  <div className="analytics-card">
-                    <h3>Repository Metrics</h3>
-                    <div className="metrics-grid">
-                      <div className="metric-item">
-                        <div className="metric-icon">📊</div>
-                        <div className="metric-content">
-                          <span className="metric-value">{repository.stargazers_count}</span>
-                          <span className="metric-label">Stars</span>
-                        </div>
-                      </div>
-                      <div className="metric-item">
-                        <div className="metric-icon">🍴</div>
-                        <div className="metric-content">
-                          <span className="metric-value">{repository.forks_count}</span>
-                          <span className="metric-label">Forks</span>
-                        </div>
-                      </div>
-                      <div className="metric-item">
-                        <div className="metric-icon">👀</div>
-                        <div className="metric-content">
-                          <span className="metric-value">{repository.watchers_count}</span>
-                          <span className="metric-label">Watchers</span>
-                        </div>
-                      </div>
-                      <div className="metric-item">
-                        <div className="metric-icon">📝</div>
-                        <div className="metric-content">
-                          <span className="metric-value">{commits.length}</span>
-                          <span className="metric-label">Recent Commits</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Activity Timeline */}
-                  <div className="analytics-card large">
-                    <h3>Recent Activity Timeline</h3>
-                    <div className="activity-timeline">
-                      {[...commits.slice(0, 10), ...pullRequests.slice(0, 5), ...issues.slice(0, 5)]
-                        .sort((a, b) => new Date(b.created_at || b.commit?.author?.date) - new Date(a.created_at || a.commit?.author?.date))
-                        .slice(0, 15)
-                        .map((item, index) => (
-                          <div key={`${item.id || item.sha}-${index}`} className="timeline-item">
-                            <div className="timeline-dot"></div>
-                            <div className="timeline-content">
-                              <div className="timeline-header">
-                                <span className="timeline-type">
-                                  {item.commit ? 'Commit' : item.pull_request ? 'Pull Request' : 'Issue'}
-                                </span>
-                                <span className="timeline-date">
-                                  {getTimeAgo(item.created_at || item.commit?.author?.date)}
-                                </span>
-                              </div>
-                              <div className="timeline-title">
-                                {item.commit ? item.commit.message.split('\n')[0] : item.title}
-                              </div>
-                              <div className="timeline-author">
-                                by {item.commit ? item.commit.author.name : item.user?.login}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                      {releaseStats.length === 0 && (
+                        <div className="no-releases">No releases yet</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -946,146 +665,76 @@ const RepositoryDetail = () => {
 
             {activeTab === 'pulls' && (
               <div className="pulls-tab">
-                <div className="pr-header">
-                  <div className="pr-stats">
-                    <div className="pr-stat-item">
-                      <span className="pr-stat-number">{pullRequests.filter(pr => pr.state === 'open').length}</span>
-                      <span className="pr-stat-label">Open</span>
-                    </div>
-                    <div className="pr-stat-item">
-                      <span className="pr-stat-number">{pullRequests.filter(pr => pr.state === 'closed' && pr.merged_at).length}</span>
-                      <span className="pr-stat-label">Merged</span>
-                    </div>
-                    <div className="pr-stat-item">
-                      <span className="pr-stat-number">{pullRequests.filter(pr => pr.state === 'closed' && !pr.merged_at).length}</span>
-                      <span className="pr-stat-label">Closed</span>
-                    </div>
+                {/* PR Filter Controls */}
+                <div className="pr-controls">
+                  <div className="pr-filters">
+                    <button 
+                      className={`filter-btn ${prFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setPrFilter('all')}
+                    >
+                      <div className="status-dot all"></div>
+                      All ({pullRequests.length})
+                    </button>
+                    <button 
+                      className={`filter-btn ${prFilter === 'open' ? 'active' : ''}`}
+                      onClick={() => setPrFilter('open')}
+                    >
+                      <div className="status-dot open"></div>
+                      Open ({pullRequests.filter(pr => pr.state === 'open').length})
+                    </button>
+                    <button 
+                      className={`filter-btn ${prFilter === 'merged' ? 'active' : ''}`}
+                      onClick={() => setPrFilter('merged')}
+                    >
+                      <div className="status-dot merged"></div>
+                      Merged ({pullRequests.filter(pr => pr.state === 'closed' && pr.merged_at).length})
+                    </button>
+                    <button 
+                      className={`filter-btn ${prFilter === 'closed' ? 'active' : ''}`}
+                      onClick={() => setPrFilter('closed')}
+                    >
+                      <div className="status-dot closed"></div>
+                      Closed ({pullRequests.filter(pr => pr.state === 'closed' && !pr.merged_at).length})
+                    </button>
+                    <button 
+                      className={`filter-btn ${prFilter === 'draft' ? 'active' : ''}`}
+                      onClick={() => setPrFilter('draft')}
+                    >
+                      <div className="status-dot draft"></div>
+                      Draft ({pullRequests.filter(pr => pr.draft).length})
+                    </button>
                   </div>
-                  <div className="pr-controls">
-                    <div className="pr-filters">
-                      <button className={`filter-btn ${activePrFilter === 'all' ? 'active' : ''}`} onClick={() => setActivePrFilter('all')}>
-                        All ({pullRequests.length})
-                      </button>
-                      <button className={`filter-btn ${activePrFilter === 'open' ? 'active' : ''}`} onClick={() => setActivePrFilter('open')}>
-                        Open ({pullRequests.filter(pr => pr.state === 'open').length})
-                      </button>
-                      <button className={`filter-btn ${activePrFilter === 'merged' ? 'active' : ''}`} onClick={() => setActivePrFilter('merged')}>
-                        Merged ({pullRequests.filter(pr => pr.state === 'closed' && pr.merged_at).length})
-                      </button>
-                    </div>
-                    <div className="pr-bulk-actions">
-                      <button className="bulk-action-btn" onClick={() => handleBulkAction('approve')}>
-                        Bulk Approve
-                      </button>
-                      <button className="bulk-action-btn" onClick={() => handleBulkAction('comment')}>
-                        Bulk Comment
-                      </button>
-                      <button className="bulk-action-btn" onClick={() => handleBulkAction('close')}>
-                        Bulk Close
-                      </button>
-                    </div>
+                  <div className="pr-search">
+                    <input 
+                      type="text" 
+                      placeholder="Search pull requests..." 
+                      className="pr-search-input"
+                      value={prSearchQuery}
+                      onChange={(e) => setPrSearchQuery(e.target.value)}
+                    />
                   </div>
                 </div>
-                
+
+                {/* Enhanced PR List */}
                 <div className="pr-list">
-                  {pullRequests
-                    .filter(pr => {
-                      if (activePrFilter === 'open') return pr.state === 'open';
-                      if (activePrFilter === 'merged') return pr.state === 'closed' && pr.merged_at;
-                      if (activePrFilter === 'closed') return pr.state === 'closed' && !pr.merged_at;
-                      return true;
-                    })
-                    .map((pr) => (
-                    <div key={pr.id} className="pr-card">
-                      <div className="pr-card-header">
+                  {filteredPullRequests.length > 0 ? (
+                    filteredPullRequests.map((pr) => (
+                    <div 
+                      key={pr.id} 
+                      className={`pr-card ${pr.state} ${pr.draft ? 'draft' : ''}`}
+                      onClick={() => navigate(`/repository/${owner}/${repo}/pull/${pr.number}`)}
+                    >
+                      <div className="pr-header">
                         <div className="pr-title-section">
-                          <div className="pr-icon">
-                            {pr.state === 'open' ? '🔀' : pr.merged_at ? '✅' : '❌'}
-                          </div>
-                          <div className="pr-title-info">
-                            <h4 className="pr-title">{pr.title}</h4>
-                            <div className="pr-meta">
-                              <span className="pr-number">#{pr.number}</span>
-                              <span className="pr-author">by {pr.user.login}</span>
-                              <span className="pr-date">{getTimeAgo(pr.created_at)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="pr-status-section">
-                          <span className={`pr-status ${pr.state} ${pr.merged_at ? 'merged' : ''}`}>
-                            {pr.merged_at ? 'Merged' : pr.state}
-                          </span>
-                          <div className="pr-actions">
-                            <a 
-                              href={pr.html_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="pr-action-btn view"
-                            >
-                              View
-                            </a>
-                            {pr.state === 'open' && (
-                              <>
-                                <button className="pr-action-btn approve" onClick={() => handlePrAction(pr, 'approve')}>
-                                  Approve
-                                </button>
-                                <button className="pr-action-btn comment" onClick={() => handlePrAction(pr, 'comment')}>
-                                  Comment
-                                </button>
-                                <button className="pr-action-btn merge" onClick={() => handlePrAction(pr, 'merge')}>
-                                  Merge
-                                </button>
-                                <button className="pr-action-btn reject" onClick={() => handlePrAction(pr, 'reject')}>
-                                  Reject
-                                </button>
-                                <button className="pr-action-btn close" onClick={() => handlePrAction(pr, 'close')}>
-                                  Close
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {pr.body && (
-                        <div className="pr-description">
-                          <p>{pr.body.substring(0, 300)}{pr.body.length > 300 ? '...' : ''}</p>
-                        </div>
-                      )}
-                      
-                      <div className="pr-footer">
-                        <div className="pr-stats-mini">
-                          <div className="pr-stat-mini">
-                            <span className="stat-icon">💬</span>
-                            <span className="stat-text">{pr.comments || 0} comments</span>
-                          </div>
-                          <div className="pr-stat-mini">
-                            <span className="stat-icon">📝</span>
-                            <span className="stat-text">{pr.commits || 0} commits</span>
-                          </div>
-                          <div className="pr-stat-mini">
-                            <span className="stat-icon">📁</span>
-                            <span className="stat-text">{pr.changed_files || 0} files</span>
-                          </div>
-                          {pr.additions && pr.deletions && (
-                            <div className="pr-stat-mini">
-                              <span className="stat-icon">➕</span>
-                              <span className="stat-text">{pr.additions} additions</span>
-                            </div>
-                          )}
-                          {pr.additions && pr.deletions && (
-                            <div className="pr-stat-mini">
-                              <span className="stat-icon">➖</span>
-                              <span className="stat-text">{pr.deletions} deletions</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {pr.labels && pr.labels.length > 0 && (
+                          <div className="pr-number">#{pr.number}</div>
+                          <h4 className="pr-title">{pr.title}</h4>
                           <div className="pr-labels">
-                            {pr.labels.map((label, index) => (
+                            {pr.draft && (
+                              <span className="pr-label draft">Draft</span>
+                            )}
+                            {pr.labels.map((label) => (
                               <span 
-                                key={index} 
+                                key={label.id} 
                                 className="pr-label"
                                 style={{ backgroundColor: `#${label.color}` }}
                               >
@@ -1093,10 +742,91 @@ const RepositoryDetail = () => {
                               </span>
                             ))}
                           </div>
-                        )}
+                        </div>
+                        <div className="pr-status">
+                          <span className={`status-badge ${pr.state} ${pr.merged_at ? 'merged' : ''}`}>
+                            {pr.merged_at ? 'Merged' : pr.state === 'open' ? 'Open' : 'Closed'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="pr-meta">
+                        <div className="pr-author">
+                          <img 
+                            src={pr.user.avatar_url} 
+                            alt={pr.user.login}
+                            className="author-avatar"
+                          />
+                          <span className="author-name">{pr.user.login}</span>
+                        </div>
+                        <div className="pr-dates">
+                          <span className="pr-created">Created {getTimeAgo(pr.created_at)}</span>
+                          {pr.updated_at !== pr.created_at && (
+                            <span className="pr-updated">Updated {getTimeAgo(pr.updated_at)}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {pr.body && (
+                        <div className="pr-description">
+                          <p>{pr.body.substring(0, 150)}...</p>
+                        </div>
+                      )}
+
+                      <div className="pr-stats">
+                        <div className="pr-stat">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span>{pr.commits || 0} commits</span>
+                        </div>
+                        <div className="pr-stat">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="2"/>
+                            <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="2"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="2"/>
+                            <polyline points="10,9 9,9 8,9" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                          <span>{pr.changed_files || 0} files changed</span>
+                        </div>
+                        <div className="pr-stat">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                          <span>{pr.review_comments || 0} comments</span>
+                        </div>
+                      </div>
+
+                      <div className="pr-footer">
+                        <div className="pr-branch-info">
+                          <span className="branch-from">{pr.head.ref}</span>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M7 17l9.2-9.2M17 8l-9.2 9.2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                          <span className="branch-to">{pr.base.ref}</span>
+                        </div>
+                        <div className="pr-actions">
+                          <button className="pr-action-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2"/>
+                              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
+                            View Details
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="no-prs">
+                      <div className="no-prs-icon">🔍</div>
+                      <h3>No pull requests found</h3>
+                      <p>Try adjusting your filters or search query</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1125,170 +855,24 @@ const RepositoryDetail = () => {
 
             {activeTab === 'commits' && (
               <div className="commits-tab">
-                <div className="commits-list">
+                <div className="items-list">
                   {commits.map((commit) => (
-                    <div 
-                      key={commit.sha} 
-                      className="commit-item"
-                      onClick={() => fetchCommitDetails(commit.sha)}
-                    >
-                      <div className="commit-icon">📝</div>
-                      <div className="commit-content">
-                        <div className="commit-header">
-                          <h4 className="commit-title">{commit.commit.message.split('\n')[0]}</h4>
-                          <div className="commit-meta">
-                            <span className="commit-sha">{commit.sha.substring(0, 7)}</span>
-                            <span className="commit-date">{getTimeAgo(commit.commit.author.date)}</span>
-                          </div>
-                        </div>
-                        <div className="commit-author">
-                          <img 
-                            src={commit.author?.avatar_url || 'https://via.placeholder.com/20'} 
-                            alt={commit.commit.author.name}
-                            className="author-avatar"
-                          />
-                          <span className="author-name">{commit.commit.author.name}</span>
-                          <span className="author-email">{commit.commit.author.email}</span>
-                        </div>
-                        {commit.stats && (
-                          <div className="commit-stats">
-                            <span className="stat-item">
-                              <span className="stat-icon">➕</span>
-                              <span className="stat-text">{commit.stats.additions} additions</span>
-                            </span>
-                            <span className="stat-item">
-                              <span className="stat-icon">➖</span>
-                              <span className="stat-text">{commit.stats.deletions} deletions</span>
-                            </span>
-                            <span className="stat-item">
-                              <span className="stat-icon">📄</span>
-                              <span className="stat-text">{commit.stats.total} files changed</span>
-                            </span>
-                          </div>
-                        )}
+                    <div key={commit.sha} className="item-card">
+                      <div className="item-header">
+                        <h4 className="item-title">{commit.commit.message.split('\n')[0]}</h4>
+                        <span className="commit-sha">{commit.sha.substring(0, 7)}</span>
                       </div>
-                      <div className="commit-arrow">→</div>
+                      <div className="item-meta">
+                        <span className="item-author">by {commit.commit.author.name}</span>
+                        <span className="item-date">{getTimeAgo(commit.commit.author.date)}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
           </div>
-        </div>
       </main>
-
-      {/* Commit Details Modal */}
-      {showCommitModal && selectedCommit && (
-        <div className="commit-modal-overlay" onClick={closeCommitModal}>
-          <div className="commit-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="commit-modal-header">
-              <div className="commit-modal-title">
-                <span className="commit-modal-icon">📝</span>
-                <h3>{selectedCommit.commit.message.split('\n')[0]}</h3>
-              </div>
-              <button className="close-modal-btn" onClick={closeCommitModal}>×</button>
-            </div>
-            
-            <div className="commit-modal-content">
-              <div className="commit-info">
-                <div className="commit-details">
-                  <div className="commit-sha-full">
-                    <span className="label">Commit:</span>
-                    <code className="sha-code">{selectedCommit.sha}</code>
-                    <button 
-                      className="copy-btn"
-                      onClick={() => navigator.clipboard.writeText(selectedCommit.sha)}
-                    >
-                      📋
-                    </button>
-                  </div>
-                  <div className="commit-author-info">
-                    <img 
-                      src={selectedCommit.author?.avatar_url || 'https://via.placeholder.com/40'} 
-                      alt={selectedCommit.commit.author.name}
-                      className="commit-author-avatar"
-                    />
-                    <div className="author-details">
-                      <span className="author-name">{selectedCommit.commit.author.name}</span>
-                      <span className="author-email">{selectedCommit.commit.author.email}</span>
-                      <span className="commit-date">{formatDate(selectedCommit.commit.author.date)}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {selectedCommit.stats && (
-                  <div className="commit-summary">
-                    <div className="summary-item">
-                      <span className="summary-icon">📊</span>
-                      <span className="summary-text">
-                        {selectedCommit.stats.additions} additions, {selectedCommit.stats.deletions} deletions
-                      </span>
-                    </div>
-                    <div className="summary-item">
-                      <span className="summary-icon">📄</span>
-                      <span className="summary-text">
-                        {selectedCommit.stats.total} files changed
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {loadingCommitDetails ? (
-                <div className="loading-files">
-                  <div className="loading-spinner"></div>
-                  <span>Loading file changes...</span>
-                </div>
-              ) : (
-                <div className="files-changes">
-                  <h4>Files Changed ({commitFiles.length})</h4>
-                  <div className="files-list">
-                    {commitFiles.map((file, index) => (
-                      <div key={index} className="file-item">
-                        <div className="file-header">
-                          <div className="file-info">
-                            <span className="file-status-icon">{getFileStatusIcon(file.status)}</span>
-                            <span className="file-icon">{getFileIcon(file.filename)}</span>
-                            <span className="file-name">{file.filename}</span>
-                            {file.previous_filename && (
-                              <span className="file-rename">
-                                {' '}→ {file.previous_filename}
-                              </span>
-                            )}
-                          </div>
-                          <div className="file-stats">
-                            {file.additions > 0 && (
-                              <span className="file-additions">+{file.additions}</span>
-                            )}
-                            {file.deletions > 0 && (
-                              <span className="file-deletions">-{file.deletions}</span>
-                            )}
-                            {file.changes > 0 && (
-                              <span className="file-changes">{file.changes} changes</span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {file.patch && (
-                          <div className="file-diff">
-                            <div className="diff-header">
-                              <span className="diff-label">Changes</span>
-                              <span className="diff-size">{formatFileSize(file.patch.length)}</span>
-                            </div>
-                            <pre className="diff-content">
-                              <code>{file.patch.substring(0, 1000)}{file.patch.length > 1000 ? '...' : ''}</code>
-                            </pre>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

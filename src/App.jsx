@@ -6,6 +6,7 @@ import Landing from './landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RepositoryDetail from './pages/RepositoryDetail';
+import PullRequestDetail from './pages/PullRequestDetail';
 import Commits from './pages/Commits';
 import Features from './pages/Features';
 import Ether from './pages/Ether';
@@ -51,12 +52,19 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/repository/:owner/:repo/pull/:number" 
+            element={
+              <ProtectedRoute>
+                <PullRequestDetail />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
   );
-
 }
 
 export default App;
