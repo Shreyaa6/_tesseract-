@@ -39,25 +39,21 @@ const Login = () => {
   const handleGitHubCallback = async (code) => {
     try {
       console.log('Processing OAuth callback with code:', code);
-      const result = await login(code);
+      await login(code);
       
-      if (result && result.success) {
-        console.log('Login successful, user data:', result.user);
-        
-        // Check if we're in a popup window
-        if (window.opener) {
-          console.log('OAuth successful in popup, notifying parent window');
-          // Notify the parent window that OAuth was successful
-          window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
-          // Close the popup
-          window.close();
-        } else {
-          console.log('OAuth successful, redirecting to dashboard');
-          // Force a page reload to ensure AuthContext picks up the new state
-          window.location.href = '/dashboard';
-        }
+      console.log('Login successful!');
+      
+      // Check if we're in a popup window
+      if (window.opener) {
+        console.log('OAuth successful in popup, notifying parent window');
+        // Notify the parent window that OAuth was successful
+        window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
+        // Close the popup
+        window.close();
       } else {
-        throw new Error('Login did not complete successfully');
+        console.log('OAuth successful, redirecting to dashboard');
+        // Force a page reload to ensure AuthContext picks up the new state
+        window.location.href = '/dashboard';
       }
     } catch (error) {
       console.error('Authentication failed:', error);
@@ -118,14 +114,12 @@ const Login = () => {
         if (event.origin !== window.location.origin) return;
         
         if (event.data.type === 'OAUTH_SUCCESS') {
-          console.log('OAuth successful, closing popup');
+          console.log('OAuth successful, redirecting to dashboard');
           popup.close();
           clearInterval(checkClosed);
           window.removeEventListener('message', messageListener);
-          // Redirect to dashboard with small delay
-          setTimeout(() => {
-            window.location.href = '/dashboard';
-          }, 100);
+          // Redirect to dashboard immediately
+          window.location.href = '/dashboard';
         } else if (event.data.type === 'OAUTH_ERROR') {
           console.error('OAuth failed:', event.data.error);
           popup.close();
