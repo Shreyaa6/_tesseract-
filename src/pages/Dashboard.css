@@ -143,6 +143,7 @@
 
 .dashboard-main {
   padding: 2rem 0;
+  margin-top: 60px; /* Add space for sticky header */
 }
 
 .dashboard-content {
@@ -951,6 +952,7 @@
 
 .overview-header {
   margin-bottom: 2rem;
+  margin-top: 1rem; /* Add top margin for better spacing */
   display: flex;
   justify-content: space-between;
   align-items: center;
