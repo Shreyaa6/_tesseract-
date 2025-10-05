@@ -20,56 +20,26 @@ const Footer = () => {
 
   return (
     <>
-      {/* Hero Section */}
-      {/* <section className="footer-hero">
-        <div className="footer-hero-content">
-          <h2 className="footer-hero-title">
-            Built for the world's fastest engineering teams, now available for everyone
-          </h2>
-          <div className="footer-hero-actions">
-            <button className="footer-demo-btn">Request a demo</button>
-            <div
-              className="cta-glow-container"
-              ref={glowContainerRef}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              style={{
-                '--mouse-x': `${mousePosition.x}px`,
-                '--mouse-y': `${mousePosition.y}px`
-              }}
-            >
-              <div className="cta-glow cta-glow-1"></div>
-              <div className="cta-glow cta-glow-2"></div>
-              <button className="footer-trial-btn">Start free trial →</button>
+ {/* Neon Sign Section */}
+ <section className="neon-section">
+          <div className="neon-container">
+            <div className="neon-sign">
+              <h1 className="neon-text">
+                {'Tesseract'.split('').map((letter, index) => (
+                  <span
+                    key={index}
+                    className="neon-letter"
+                    style={{ '--delay': `${index * 0.1}s` }}
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </h1>
             </div>
+            
           </div>
-        </div>
-        <div className="footer-hero-bg">
-          <div className="hexagon-pattern"></div>
-        </div>
-        <div className="footer-hero-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2L22 7L12 12L2 7L12 2Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2 17L12 22L22 17"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2 12L12 17L22 12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </section> */}
+        </section>
+
 
       {/* Footer */}
       <footer className="blog-footer">
@@ -123,47 +93,15 @@ const Footer = () => {
             </div>
           </div>
           
-          <div className="footer-bottom">
-            <div className="footer-status">
-              <span className="status-indicator">🟢</span>
-              <span>All systems operational</span>
-            </div>
-            <div className="footer-copyright">
-              © Tesseract 2025
-            </div>
+          
+        </div>
+        
+        <div className="footer-bottom">
+          <div className="footer-copyright">
+            © Tesseract 2025
           </div>
         </div>
-
-        {/* Neon Sign Section */}
-        <section className="neon-section">
-          <div className="neon-container">
-            <div className="neon-sign">
-              <h1 className="neon-text">
-                {'Tesseract'.split('').map((letter, index) => (
-                  <span
-                    key={index}
-                    className="neon-letter"
-                    style={{ '--delay': `${index * 0.1}s` }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </h1>
-            </div>
-            <div className="neon-status">
-              <span className="status-dot">🟢</span>
-              <span className="status-text">All systems operational</span>
-            </div>
-            <div className="neon-copyright">
-              © Tesseract 2025
-            </div>
-            <div className="neon-url">
-              <div className="url-box">
-                https://graphite.dev/homepage
-              </div>
-            </div>
-          </div>
-        </section>
+       
       </footer>
     </>
   );
